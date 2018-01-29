@@ -1,0 +1,14 @@
+# CONFIG,v 1.1 2003/07/01 20:52:24 jba Exp
+
+include $(TOP)/configure/CONFIG_EXTENSIONS
+# Add any changes to make rules here
+
+OP_SYS_LDLIBS += -lxerces-c -lca -lCom
+
+CROSS_COMPILER_TARGET_ARCHS =
+
+# Use to test SciPlot or JPT, otherwise should come from CONFIG
+# Set the one you want and reset any that come from CONFIG
+#XRTGRAPH =
+SCIPLOT = YES
+#JPT = YES
