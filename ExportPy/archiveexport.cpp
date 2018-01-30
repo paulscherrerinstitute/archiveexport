@@ -1,5 +1,7 @@
 #include <Python.h>
 
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+// #include "numpy/arrayobject.h"
 // Base
 #include <epicsVersion.h>
 // Tools
@@ -9,34 +11,11 @@
 #include <epicsTimeHelper.h>
 #include <ArgParser.h>
 // Storage
-#include <SpreadsheetReader.h>
 #include <AutoIndex.h>
+#include <ReaderFactory.h>
+#include <RawDataReader.h>
+#include <RawValue.h>
 
-// List channel names, maybe with start/end info.
-void list_channels(Index &index, stdVector<stdString> names, bool info)
-{
-    epicsTime start, end;
-    stdString s, e;
-    AutoPtr<RTree> tree;
-    size_t i;
-    for (i=0; i<names.size(); ++i)
-    {
-        if (info)
-        {
-            stdString directory;
-            tree = index.getTree(names[i], directory);
-            if (!tree)
-                throw GenericException(__FILE__, __LINE__,
-                                       "Cannot locate channel '%s'",
-                                       names[i].c_str());
-            tree->getInterval(start, end);
-            printf("%s\t%s\t%s\n", names[i].c_str(),
-                   epicsTimeTxt(start, s), epicsTimeTxt(end, e));
-        }
-        else
-            printf("%s\n", names[i].c_str());
-    }
-}
 
 // Visitor for BinaryTree of channel names;
 // see get_names_for_pattern().
@@ -118,8 +97,92 @@ archiveexport_list(PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 
+static PyObject *
+archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
+{
+   
+    char *index_name;
+    char *channel;
+
+    char *kwlist[] = {"index_name", "channel", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|s", kwlist, &index_name, &channel ))
+        return NULL;
+
+    AutoIndex index;
+    index.open(index_name);
+
+    double delta = 0.0;
+    AutoPtr<epicsTime> start, end;
+
+    const RawValue::Data *value;
+    AutoPtr<DataReader> reader(ReaderFactory::create(index, ReaderFactory::Raw, delta));
+
+    stdVector<stdString> units;
+
+    bool is_array = false;
+
+    PyObject *list;
+    list = PyList_New(0);
+
+    // find first value
+    value = reader->find(channel, start);
+
+    if (value){
+        // data found
+        units.push_back(reader->getInfo().getUnits());
+        // Check if it's an array; 
+        if (reader->getCount() > 1)
+        {
+            is_array = true;
+        }
+
+    }
+
+    while (value)
+    {
+
+        PyObject * row = PyList_New(0);
+
+        epicsTime timestamp = epicsTimeStamp(RawValue::getTime(value));
+        if (end && timestamp >= *end)
+            break;
+
+        if (RawValue::isInfo(value))
+        {   // this indicates interruption in data recording
+            1;
+        }
+        else{
+
+            /* sec */
+            PyList_Append(row, PyLong_FromLong(epicsTimeStamp(timestamp).secPastEpoch));
+            /* nsec */
+            PyList_Append(row, PyLong_FromLong(epicsTimeStamp(timestamp).nsec));
+
+            if (reader->getCount() <= 1)
+            {   
+
+                double dbl;
+                RawValue::getDouble(reader->getType(), reader->getCount(), value, dbl, 0);
+                PyList_Append(row, PyFloat_FromDouble(dbl));
+            }
+            else
+            {   // Array
+            
+            }
+            PyList_Append(list, row);
+        }
+        value = reader->next();
+    }
+    
+    return list;
+}
+
+/* Export to Python */
+
 static PyMethodDef ArchiveExportMethods[] = {
-    {"list",   (PyCFunction)archiveexport_list, METH_VARARGS|METH_KEYWORDS, "Execute a shell command."},
+    {"list",   (PyCFunction)archiveexport_list, METH_VARARGS|METH_KEYWORDS, "Find channels."},
+    {"get_data",   (PyCFunction)archiveexport_get_data, METH_VARARGS|METH_KEYWORDS, "Get data."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
