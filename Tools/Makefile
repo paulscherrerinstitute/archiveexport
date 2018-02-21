@@ -78,8 +78,8 @@ ToolsObj_DIR = $(INSTALL_LIB)
 # Include the UnitTest make-snipped,
 # from both this directory and later
 # when we're down in O.$(EPICS_HOST_ARCH):
--include UnitTest.mk
--include ../UnitTest.mk
+#-include UnitTest.mk
+#-include ../UnitTest.mk
 
 include $(TOP)/configure/RULES
 

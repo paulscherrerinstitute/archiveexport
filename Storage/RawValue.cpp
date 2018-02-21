@@ -100,7 +100,7 @@ void RawValue::getStatus(const Data *value, stdString &result)
     switch (severity)
     {
     case NO_ALARM:
-        result = '\0';
+        result = "\0";
         return;
     // Archiver specials:
     case ARCH_EST_REPEAT:

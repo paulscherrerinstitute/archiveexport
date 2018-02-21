@@ -1,23 +1,12 @@
-#		-I/opt/anaconda3/lib/python3.6/site-packages/numpy/core/include/ 
+TOP:=$(TOP)/..
+include $(TOP)/configure/CONFIG
 
-install:
-	# g++ main.cpp -o ArchiveExportPy -I/opt/epics/base/include/ -I/opt/epics/base/include/os/Linux/  -I/opt/epics/extensions/src/ChannelArchiver/Storage -I/opt/epics/extensions/src/ChannelArchiver/Tools  -L/opt/epics/extensions/lib/linux-x86_64/ -lStorage -lTools -D ARCH_VERSION_TXT=\"0.9.0\" -L/opt/epics/base/lib/linux-x86_64/ -lca -lCom
-	g++ -c -fPIC archiveexport.cpp -o archiveexport.o \
-		-I/opt/anaconda3/include/python3.6m/ \
-		-I/opt/epics/extensions/src/ChannelArchiver/Storage \
-		-I/opt/epics/extensions/src/ChannelArchiver/Tools \
-		-I/opt/epics/base/include/ \
-		-I/opt/epics/base/include/os/Linux/ \
-		-L/opt/epics/extensions/lib/linux-x86_64/ -lStorage -lTools \
-		-L/opt/epics/base/lib/linux-x86_64/ -lCom -lca 
-	g++ -shared archiveexport.o -o archiveexport.so \
-		-I/opt/anaconda3/include/python3.6m/ \
-		-I/opt/epics/extensions/src/ChannelArchiver/Storage \
-		-I/opt/epics/extensions/src/ChannelArchiver/Tools \
-		-I/opt/epics/base/include/ \
-		-I/opt/epics/base/include/os/Linux/ \
-		-L/opt/epics/extensions/lib/linux-x86_64/ -lStorage -lTools \
-		-L/opt/epics/base/lib/linux-x86_64/ -lCom -lca
+LIB_SRCS += archiveexport.cpp
+LIBRARY_HOST = archiveexport
 
-clean:
-	rm archiveexport.o archiveexport.so
+USR_CXXFLAGS  = -I$(PYTHON_INCLUDE)m -I$(PYTHON) -I$(INSTALL_LOCATION)/Storage -I$(INSTALL_LOCATION)/Tools -I$(EPICS_BASE)/include -I$(EPICS_BASE)/include/os/$(OS_CLASS)
+
+OP_SYS_LDLIBS = $(INSTALL_LOCATION)/Storage/O.$(EPICS_HOST_ARCH)/libStorage.a $(INSTALL_LOCATION)/Tools/O.$(EPICS_HOST_ARCH)/libTools.a -Wl,-rpath $(EPICS_BASE)/lib/$(EPICS_HOST_ARCH) -lCom -lca -L$(XERCES_LIB) -lxerces-c
+
+
+include $(TOP)/configure/RULES

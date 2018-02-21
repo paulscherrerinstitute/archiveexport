@@ -69,7 +69,7 @@ archiveexport_list(PyObject *self, PyObject *args, PyObject *keywds)
     char *index_name;
     char *pattern;
 
-    char *kwlist[] = {"index_name", "pattern", NULL};
+    char *kwlist[] = {(char *)"index_name", (char *)"pattern", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|s", kwlist, &index_name, &pattern ))
         return NULL;
@@ -104,7 +104,7 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
     char *index_name;
     char *channel;
 
-    char *kwlist[] = {"index_name", "channel", NULL};
+    char *kwlist[] = {(char *)"index_name", (char *)"channel", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|s", kwlist, &index_name, &channel ))
         return NULL;

@@ -8,5 +8,5 @@
 
 # Location of external products
 EPICS_BASE=/opt/epics/base
-EPICS_EXTENSIONS=/opt/epics/extensions
-INSTALL_LOCATION_EXTENSIONS=$(EPICS_EXTENSIONS)
+
+XERCES_LIB=/usr/local/lib

@@ -1,0 +1,27 @@
+
+package:
+    name: archiveexport
+    version: 0.9
+
+source:    
+    path: ..
+
+build:
+  number: 1
+
+requirements:
+  build:
+    - python
+    - xerces-c
+    - epics-base
+    - {{ compiler('c') }}
+    - make
+
+  run:
+    - python
+    - epics-base
+
+about:
+    home: http://www.aps.anl.gov/epics
+    license: Epics Open License
+    summary: EPICS Base Library

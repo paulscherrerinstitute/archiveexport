@@ -3,12 +3,12 @@
 include $(TOP)/configure/CONFIG_EXTENSIONS
 # Add any changes to make rules here
 
-OP_SYS_LDLIBS += -lxerces-c -lca -lCom
+OP_SYS_LDLIBS += -lCom -lca
 
 CROSS_COMPILER_TARGET_ARCHS =
 
 # Use to test SciPlot or JPT, otherwise should come from CONFIG
 # Set the one you want and reset any that come from CONFIG
 #XRTGRAPH =
-SCIPLOT = YES
+#SCIPLOT = YES
 #JPT = YES

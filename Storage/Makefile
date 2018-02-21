@@ -57,7 +57,7 @@ LIBRARY_HOST = Storage
 
 
 # Tools to build but not install
-TESTPROD_HOST += FileAllocatorTool
+#TESTPROD_HOST += FileAllocatorTool
 #TESTPROD_HOST += ReadTest
 PROD_LIBS_DEFAULT = Storage    Tools
 PROD_LIBS_WIN32   = StorageObj ToolsObj
@@ -72,8 +72,8 @@ ToolsObj_DIR   = $(INSTALL_LIB)
 # Include the UnitTest make-snipped,
 # from both this directory and later
 # when we're down in O.$(EPICS_HOST_ARCH):
--include UnitTest.mk
--include ../UnitTest.mk
+#-include UnitTest.mk
+#-include ../UnitTest.mk
 
 include $(TOP)/configure/RULES
 
@@ -81,14 +81,4 @@ include $(TOP)/configure/RULES
 #
 # Make target to rebuild & run the tests.
 # Extend this if tests also include shell scripts etc.
-
-.PHONY: test
-
-test:
-	perl ../Tools/makeUnitTestMain.pl
-	$(MAKE)
-	O.$(EPICS_HOST_ARCH)/UnitTest
-        
-valgrind:
-	IN_VALGRIND=1 valgrind $(VALGRIND_FLAGS) O.$(EPICS_HOST_ARCH)/UnitTest
 
