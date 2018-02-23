@@ -102,12 +102,26 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
 {
    
     char *index_name;
-    char *channel;
+    PyObject *channel_names;
+    PyObject *pItem;
+    Py_ssize_t n;
 
-    char *kwlist[] = {(char *)"index_name", (char *)"channel", NULL};
+    char *kwlist[] = {(char *)"index_name", (char *)"channels", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|s", kwlist, &index_name, &channel ))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|O!", kwlist, &index_name, &PyList_Type, &channel_names))
         return NULL;
+
+    n = PyList_Size(channel_names);
+
+    // check channel names for type
+    int i;
+    for (i = 0; i < n; i++){
+        pItem = PyList_GetItem(channel_names, i);
+        if(!PyUnicode_Check(pItem)){
+            PyErr_SetString(PyExc_TypeError, "Channel names must be strings.");
+            return NULL;
+        }
+    }
 
     AutoIndex index;
     index.open(index_name);
@@ -122,60 +136,70 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
 
     bool is_array = false;
 
-    PyObject *list;
-    list = PyList_New(0);
+    // top container
+    PyObject *container_dict;
+    container_dict = PyDict_New();
 
-    // find first value
-    value = reader->find(channel, start);
+    // for each channel name
+    for (i = 0; i < n; i++){
+        pItem = PyList_GetItem(channel_names, i);
+        
+        // add first channel list
+        PyObject *channel_list;
+        channel_list = PyList_New(0);
+        PyDict_SetItem(container_dict, pItem, channel_list);
 
-    if (value){
-        // data found
-        units.push_back(reader->getInfo().getUnits());
-        // Check if it's an array; 
-        if (reader->getCount() > 1)
+        // find first value
+        value = reader->find(PyUnicode_AsUTF8AndSize(pItem, NULL), start);
+
+        if (value){
+            // data found
+            units.push_back(reader->getInfo().getUnits());
+            // Check if it's an array; 
+            if (reader->getCount() > 1)
+            {
+                is_array = true;
+            }
+
+        }
+
+        while (value)
         {
-            is_array = true;
-        }
 
-    }
+            PyObject * row_dict = PyDict_New();
 
-    while (value)
-    {
+            epicsTime timestamp = epicsTimeStamp(RawValue::getTime(value));
+            if (end && timestamp >= *end)
+                break;
 
-        PyObject * row = PyList_New(0);
-
-        epicsTime timestamp = epicsTimeStamp(RawValue::getTime(value));
-        if (end && timestamp >= *end)
-            break;
-
-        if (RawValue::isInfo(value))
-        {   // this indicates interruption in data recording
-            1;
-        }
-        else{
-
-            /* sec */
-            PyList_Append(row, PyLong_FromLong(epicsTimeStamp(timestamp).secPastEpoch));
-            /* nsec */
-            PyList_Append(row, PyLong_FromLong(epicsTimeStamp(timestamp).nsec));
-
-            if (reader->getCount() <= 1)
-            {   
-
-                double dbl;
-                RawValue::getDouble(reader->getType(), reader->getCount(), value, dbl, 0);
-                PyList_Append(row, PyFloat_FromDouble(dbl));
+            if (RawValue::isInfo(value))
+            {   // this indicates interruption in data recording
+                1;
             }
-            else
-            {   // Array
-            
+            else{
+
+                /* sec */
+                PyDict_SetItem(row_dict, PyUnicode_FromString("seconds"), PyLong_FromLong(epicsTimeStamp(timestamp).secPastEpoch));
+                /* nsec */
+                PyDict_SetItem(row_dict, PyUnicode_FromString("nanoseconds"), PyLong_FromLong(epicsTimeStamp(timestamp).nsec));
+
+                if (reader->getCount() <= 1)
+                {   
+
+                    double dbl;
+                    RawValue::getDouble(reader->getType(), reader->getCount(), value, dbl, 0);
+                    PyDict_SetItem(row_dict, PyUnicode_FromString("value"), PyFloat_FromDouble(dbl));
+                }
+                else
+                {   // Array
+                
+                }
+                PyList_Append(channel_list, row_dict);
             }
-            PyList_Append(list, row);
+            value = reader->next();
         }
-        value = reader->next();
     }
-    
-    return list;
+    return container_dict;
 }
 
 /* Export to Python */
