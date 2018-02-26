@@ -11,11 +11,13 @@ build:
 
 requirements:
   build:
+    - {{ compiler('c') }}
+    - make
+
+  host:
     - python
     - xerces-c
     - epics-base
-    - {{ compiler('c') }}
-    - make
 
   run:
     - python
