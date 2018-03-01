@@ -1,96 +1,74 @@
-#include <Python.h>
+// #define AE_DEBUG
 
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-// #include "numpy/arrayobject.h"
-// Base
+// Python
+#include <Python.h>
+#include <datetime.h>
+
+// Epics Base
 #include <epicsVersion.h>
+
 // Tools
 #include <AutoPtr.h>
 #include <BinaryTree.h>
 #include <RegularExpression.h>
 #include <epicsTimeHelper.h>
 #include <ArgParser.h>
+
 // Storage
 #include <AutoIndex.h>
 #include <ReaderFactory.h>
 #include <RawDataReader.h>
 #include <RawValue.h>
 
-
-// Visitor for BinaryTree of channel names;
-// see get_names_for_pattern().
-static void add_name2vector(const stdString &name, void *arg)
-{
-    stdVector<stdString> *names = (stdVector<stdString> *)arg;
-    //if (verbose)
-    //    printf("%s\n", name.c_str());
-    names->push_back(name);
-}
-
-void get_names_for_pattern(Index &index,
-                           stdVector<stdString> &names,
-                           const stdString &pattern)
-{
-    //if (verbose)
-    //    printf("Expanding pattern '%s'\n", pattern.c_str());
-    try
-    {
-        AutoPtr<RegularExpression> regex;
-        if (pattern.length() > 0)
-            regex.assign(new RegularExpression(pattern.c_str()));
-        Index::NameIterator name_iter;
-        if (!index.getFirstChannel(name_iter))
-            return; // No names
-        // Put all names in binary tree
-        BinaryTree<stdString> channels;
-        do
-        {
-            if (regex && !regex->doesMatch(name_iter.getName()))
-                continue; // skip what doesn't match regex
-            channels.add(name_iter.getName());
-        }
-        while (index.getNextChannel(name_iter));
-        // Sorted dump of names
-        channels.traverse(add_name2vector, (void *)&names);
-    }
-    catch (GenericException &e)
-    {
-        throw GenericException(__FILE__, __LINE__,
-                               "Error expanding name pattern '%s':\n%s\n",
-                               pattern.c_str(), e.what());
-    }
-}
-
+#include "utils.h"
 
 static PyObject *
 archiveexport_list(PyObject *self, PyObject *args, PyObject *keywds)
 {
    
-    char *index_name;
-    char *pattern;
+    char *index_name = NULL;
+    char *pattern = NULL;
 
     char *kwlist[] = {(char *)"index_name", (char *)"pattern", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|s", kwlist, &index_name, &pattern ))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|$s", kwlist, &index_name, &pattern ))
         return NULL;
 
-    stdVector<stdString> names;
+    PyObject *list;
+
+    list = PyList_New(0);
 
     AutoIndex index;
     index.open(index_name);
-    
-    printf("Opened index: %s\n", index_name);
-    printf("pattern: %s\n", pattern);
 
-    get_names_for_pattern(index, names, pattern);
+    // placeholders to ude with DECREF macros
+    PyObject * pObj;
 
-    PyObject *list;
-    list = PyList_New(names.size());
-
-    size_t i;
-    for (i=0; i<names.size(); ++i)
+    try
     {
-        PyList_SET_ITEM(list, i, PyUnicode_FromString(names[i].c_str()));
+        AutoPtr<RegularExpression> regex;        
+        if (pattern && strlen(pattern)  > 0){
+            regex.assign(new RegularExpression(pattern));
+        }
+        
+
+        Index::NameIterator name_iter;
+        if (!index.getFirstChannel(name_iter))
+            return list; // No names
+        do
+        {
+            if (regex && !regex->doesMatch(name_iter.getName()))
+                continue; // skip what doesn't match regex
+            PyList_AppendDECREF(list, PyUnicode_FromString(name_iter.getName().c_str()));
+        }
+        while (index.getNextChannel(name_iter));
+    }
+    catch (GenericException &e)
+    {
+        Py_DECREF(list);
+        throw GenericException(__FILE__, __LINE__,
+                               "Error expanding name pattern '%s':\n%s\n",
+                               pattern, e.what());
     }
 
     return list;
@@ -100,25 +78,40 @@ archiveexport_list(PyObject *self, PyObject *args, PyObject *keywds)
 static PyObject *
 archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
 {
-   
-    char *index_name;
-    PyObject *channel_names;
-    PyObject *pItem;
+
+
+    char *index_name = NULL;;
+    PyObject *channel_names = NULL;
+    PyObject *channel_name = NULL;
+    epicsTime * start = NULL;
+    epicsTime * end = NULL;
+
     Py_ssize_t n;
 
-    char *kwlist[] = {(char *)"index_name", (char *)"channels", NULL};
+    char *kwlist[] = {(char *)"index_name", (char *)"channels", (char *)"start", (char *)"end", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|O!", kwlist, &index_name, &PyList_Type, &channel_names))
+    if  (!PyArg_ParseTupleAndKeywords(args, keywds, "s|$O!O&O&", kwlist, 
+                                        &index_name, 
+                                        &PyList_Type, &channel_names, 
+                                        EpicsTime_FromPyDateTime_converter, &start, 
+                                        EpicsTime_FromPyDateTime_converter, &end 
+                                     ) 
+        )
         return NULL;
+
+    //printf("start:%"PRIu32"\n", epicsTimeStamp(*start).secPastEpoch);
+    //printf("end:%"PRIu32"\n", epicsTimeStamp(*end).secPastEpoch);
+    
 
     n = PyList_Size(channel_names);
 
     // check channel names for type
     int i;
     for (i = 0; i < n; i++){
-        pItem = PyList_GetItem(channel_names, i);
-        if(!PyUnicode_Check(pItem)){
+        channel_name = PyList_GetItem(channel_names, i);
+        if(!PyUnicode_Check(channel_name)){
             PyErr_SetString(PyExc_TypeError, "Channel names must be strings.");
+            delete start; delete end; 
             return NULL;
         }
     }
@@ -126,79 +119,60 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
     AutoIndex index;
     index.open(index_name);
 
-    double delta = 0.0;
-    AutoPtr<epicsTime> start, end;
-
     const RawValue::Data *value;
-    AutoPtr<DataReader> reader(ReaderFactory::create(index, ReaderFactory::Raw, delta));
+    AutoPtr<DataReader> reader(ReaderFactory::create(index, ReaderFactory::Raw, 0.0));
 
-    stdVector<stdString> units;
-
-    bool is_array = false;
-
-    // top container
+    // top container dict
     PyObject *container_dict;
     container_dict = PyDict_New();
+    
+    // placeholders to use with DECREF macros from utils.h
+    PyObject * pObj;
+    PyObject * pKey;
 
     // for each channel name
     for (i = 0; i < n; i++){
-        pItem = PyList_GetItem(channel_names, i);
+        channel_name = PyList_GetItem(channel_names, i);
         
-        // add first channel list
-        PyObject *channel_list;
-        channel_list = PyList_New(0);
-        PyDict_SetItem(container_dict, pItem, channel_list);
+        // create first channel list
+        PyObject *value_list = PyList_New(0);
 
         // find first value
-        value = reader->find(PyUnicode_AsUTF8AndSize(pItem, NULL), start);
-
-        if (value){
-            // data found
-            units.push_back(reader->getInfo().getUnits());
-            // Check if it's an array; 
-            if (reader->getCount() > 1)
-            {
-                is_array = true;
-            }
-
-        }
+        value = reader->find(PyUnicode_AsUTF8(channel_name), start);
+        epicsTime timestamp = RawValue::getTime(value);
 
         while (value)
         {
+            if (! RawValue::isInfo(value)){ // value returning true here is a special record indicating interruption in data recording
 
-            PyObject * row_dict = PyDict_New();
+                PyObject *row_dict = PyDict_New();
+                // value 
+                PyDict_SetItemStringDECREF(row_dict, "value", PyObject_FromDBRType(value, reader->getType(), reader->getCount()));
+                // sec 
+                PyDict_SetItemStringDECREF(row_dict, "seconds", PyLong_FromLong(epicsTimeStamp(timestamp).secPastEpoch)); 
+                // nsec 
+                PyDict_SetItemStringDECREF(row_dict, "nanoseconds", PyLong_FromLong(epicsTimeStamp(timestamp).nsec));
+                // units  - surrogateescape does not fail on undecodable characters
+                PyDict_SetItemStringDECREF(row_dict, "units", PyUnicode_DecodeLocale(reader->getInfo().getUnits(),"surrogateescape"));
 
-            epicsTime timestamp = epicsTimeStamp(RawValue::getTime(value));
+                // append dict to list 
+                PyList_AppendDECREF(value_list, row_dict);
+            }
+
+            // break after one node after the end timestamp
+            
             if (end && timestamp >= *end)
                 break;
 
-            if (RawValue::isInfo(value))
-            {   // this indicates interruption in data recording
-                1;
-            }
-            else{
-
-                /* sec */
-                PyDict_SetItem(row_dict, PyUnicode_FromString("seconds"), PyLong_FromLong(epicsTimeStamp(timestamp).secPastEpoch));
-                /* nsec */
-                PyDict_SetItem(row_dict, PyUnicode_FromString("nanoseconds"), PyLong_FromLong(epicsTimeStamp(timestamp).nsec));
-
-                if (reader->getCount() <= 1)
-                {   
-
-                    double dbl;
-                    RawValue::getDouble(reader->getType(), reader->getCount(), value, dbl, 0);
-                    PyDict_SetItem(row_dict, PyUnicode_FromString("value"), PyFloat_FromDouble(dbl));
-                }
-                else
-                {   // Array
-                
-                }
-                PyList_Append(channel_list, row_dict);
-            }
             value = reader->next();
         }
+
+        // add values list to the dictionary, dispose item only, since key is still used in channel_names
+        PyDict_SetItemDECREFItem(container_dict, channel_name, value_list);
+
     }
+    
+    delete start; delete end;
     return container_dict;
 }
 
@@ -210,7 +184,7 @@ static PyMethodDef ArchiveExportMethods[] = {
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
-PyDoc_STRVAR(archiveexport_doc, "This is a template module just for instruction.");
+PyDoc_STRVAR(archiveexport_doc, "This module can extract data from ChannelArchiver files.");
 
 static struct PyModuleDef archiveexportmodule = {
     PyModuleDef_HEAD_INIT,
@@ -225,5 +199,7 @@ static struct PyModuleDef archiveexportmodule = {
 PyMODINIT_FUNC
 PyInit_archiveexport(void)
 {
+    //PyDateTime_IMPORT;
+    PyDateTimeAPI = (PyDateTime_CAPI *)PyCapsule_Import(PyDateTime_CAPSULE_NAME, 0);
     return PyModule_Create(&archiveexportmodule);
 }

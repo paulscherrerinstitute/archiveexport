@@ -2,6 +2,7 @@ TOP:=$(TOP)/..
 include $(TOP)/configure/CONFIG
 
 LIB_SRCS += archiveexport.cpp
+LIB_SRCS += utils.cpp
 LIBRARY_HOST = archiveexport
 
 USR_CXXFLAGS  = -I$(PYTHON_INCLUDE)m -I$(PYTHON) -I$(INSTALL_LOCATION)/Storage -I$(INSTALL_LOCATION)/Tools -I$(EPICS_BASE)/include -I$(EPICS_BASE)/include/os/$(OS_CLASS)

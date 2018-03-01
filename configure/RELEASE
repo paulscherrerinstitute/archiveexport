@@ -9,4 +9,4 @@
 # Location of external products
 EPICS_BASE=/opt/epics/base
 
-XERCES_LIB=/usr/local/lib
+XERCES_LIB=/usr/lib/x86_64-linux-gnu

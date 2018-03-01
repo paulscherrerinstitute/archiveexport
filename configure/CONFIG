@@ -3,7 +3,7 @@
 include $(TOP)/configure/CONFIG_EXTENSIONS
 # Add any changes to make rules here
 
-OP_SYS_LDLIBS += -lCom -lca
+OP_SYS_LDLIBS += -lCom -lca -lxerces-c
 
 CROSS_COMPILER_TARGET_ARCHS =
 

@@ -1,0 +1,297 @@
+{'ARIDI-MBF-Y:CBM+161': [{'value': 0.002191627863794565, 'seconds': 888707826, 'nanoseconds': 806710334, 'units': ''}]}
+{'X05LA-VME-LA6:MEMALLOC': []}
+{'ARIMA-CV-11SE:I-REFGET': [{'value': 1.1554532051086426, 'seconds': 888755958, 'nanoseconds': 29479391, 'units': 'A'}]}
+{'ARIMA-QLH-12:PS-ERROR': [{'value': 0, 'seconds': 888707877, 'nanoseconds': 937098657, 'units': ''}]}
+{'ALBMA-VME-BQ:CALNCONN': [{'value': 0.0, 'seconds': 888707940, 'nanoseconds': 790460956, 'units': '#'}]}
+{'ARIDI-BPM-11SE:VC-MIN': [{'value': 8596.0, 'seconds': 888755938, 'nanoseconds': 834473757, 'units': 'digits'}]}
+{'ARIMA-CV-02ME:ERC-DSST': [{'value': 0, 'seconds': 888707848, 'nanoseconds': 104823098, 'units': ''}]}
+{'ABOMA-CV-3G:DSP-REPLY': [{'value': ' 5 Device_On_Off   \n 4 Device_On_Off', 'seconds': 888755957, 'nanoseconds': 418550771, 'units': ''}]}
+{'X12SA-VME-ES2:NETPCOLL': [{'value': 0.0, 'seconds': 888707889, 'nanoseconds': 752988322, 'units': '#'}]}
+{'ARIMA-CV-02SE:I-READ': [{'value': -0.666259765625, 'seconds': 888707877, 'nanoseconds': 309950670, 'units': 'A'}]}
+{'ARIMA-CV-07ME:ERF-DRV': [{'value': 0, 'seconds': 888707877, 'nanoseconds': 437199885, 'units': ''}]}
+{'ARIMA-QMG-11:ERF-IPPR': [{'value': 0, 'seconds': 888707876, 'nanoseconds': 319130033, 'units': ''}]}
+{'X06DAB-OP-LAC:02_07': [{'value': 1, 'seconds': 888755556, 'nanoseconds': 382000000, 'units': ''}]}
+{'ALIMA-BY:RESISTANCE': [{'value': 0.4262520944513375, 'seconds': 888707867, 'nanoseconds': 337833993, 'units': 'Ohm'}]}
+{'ARIMA-CH-10ME:ERC-REGS': [{'value': 0, 'seconds': 888707877, 'nanoseconds': 281076234, 'units': ''}]}
+{'ABOMA-CV-6H:PS-STERR': [{'value': 0, 'seconds': 888707875, 'nanoseconds': 300290522, 'units': ''}]}
+{'ARIMA-QMF-07:I-DIFF': [{'value': -0.00072479248046875, 'seconds': 888707877, 'nanoseconds': 442499764, 'units': 'A'}]}
+{'ARIDI-MBF-X:CBM-197': [{'value': 0.0001646733289817348, 'seconds': 888707824, 'nanoseconds': 299743041, 'units': ''}]}
+{'ARIMA-CV-12LD:ERF-IPPR': [{'value': 0, 'seconds': 888707875, 'nanoseconds': 752356490, 'units': ''}]}
+{'ARIVA-LM07-CH32:TEMP': [{'value': 27.350514105044436, 'seconds': 888755880, 'nanoseconds': 55560513, 'units': '\udcb0C'}]}
+{'ARIDI-BPM-12SE:Y-MAX': [{'value': 0.004537457600235939, 'seconds': 888754004, 'nanoseconds': 709618382, 'units': 'mm'}]}
+{'ARIMA-QSF-09:ERF-IPFR': [{'value': 0, 'seconds': 888707877, 'nanoseconds': 140495075, 'units': ''}]}
+{'ARIMA-SMA:ERF-IPPR': [{'value': 0, 'seconds': 888707851, 'nanoseconds': 878547360, 'units': ''}]}
+{'X10DB-FE-BM1:SIGNAL2': [{'value': -0.07783432514897246, 'seconds': 888755879, 'nanoseconds': 978726210, 'units': 'nAmp'}]}
+{'ARIMA-QSA-01:ERC-IPLD': [{'value': 46630861, 'seconds': 888751498, 'nanoseconds': 393763303, 'units': ''}]}
+{'ARIMA-QSA-01:RESISTANCE': [{'value': 0.13531501773394033, 'seconds': 888707877, 'nanoseconds': 939660124, 'units': 'Ohm'}]}
+{'X09LA-ID-CHU1:U-DCLINK': [{'value': 22.68402099609375, 'seconds': 888707875, 'nanoseconds': 372643033, 'units': 'V'}]}
+{'ALBMA-QB-1:ERF-PSLO': [{'value': 0, 'seconds': 888707867, 'nanoseconds': 334702530, 'units': ''}]}
+{'ARIAL-GME1-01G4:VAL': [{'value': -1.167113690800285, 'seconds': 888755959, 'nanoseconds': 906154340, 'units': ''}]}
+{'ARIVA-TC05L-42:TEMP': [{'value': 25.150384533219125, 'seconds': 888755876, 'nanoseconds': 970527221, 'units': '\udcb0C'}]}
+{'ABOMA-CV-4H:ERC-DRAD': [{'value': 45323520, 'seconds': 888707862, 'nanoseconds': 774291889, 'units': ''}]}
+{'ARIMA-CV-10SE:PS-RTERRSTR': [{'value': 'OK (0x00)', 'seconds': 888707853, 'nanoseconds': 942781702, 'units': ''}]}
+{'ARIRF-A4-FOC2:ConctM1': [{'value': 0, 'seconds': 888707876, 'nanoseconds': 350130399, 'units': ''}]}
+{'X09LA-ID-MVB:ERC-SUM': [{'value': 9417, 'seconds': 888707876, 'nanoseconds': 387886870, 'units': ''}]}
+{'ARIMA-SE:PSID-STR': [{'value': 'Rack  1.0.10, PS 1', 'seconds': 888707851, 'nanoseconds': 876577560, 'units': ''}]}
+{'X05LA-LAFE-BS1:TC8BDUMP': [{'value': 0, 'seconds': 888707877, 'nanoseconds': 295526542, 'units': ''}]}
+{'X12SA-ID-CHD1:U-READ': [{'value': -0.711669921875, 'seconds': 888707940, 'nanoseconds': 892155339, 'units': 'V'}]}
+{'X09LA-FE-PI1PG1:VOLTAGE': [{'value': 3002.387152777778, 'seconds': 888755402, 'nanoseconds': 976388282, 'units': 'V'}]}
+{'X11MA-VME-ES2:NETPCOLL': [{'value': -1.0, 'seconds': 888751610, 'nanoseconds': 167204504, 'units': '#'}]}
+{'X09LA-ID-CI1:DSP-REPLY': [{'value': ' 4 Device_On_Off   ', 'seconds': 888755489, 'nanoseconds': 324341160, 'units': ''}]}
+{'X05LA-LAFE-A22:TC1': [{'value': 27.148261189331564, 'seconds': 888755926, 'nanoseconds': 828049514, 'units': '\udcb0C'}]}
+{'ARIMA-CH-09SE:PS-SDERR': [{'value': 0, 'seconds': 888707828, 'nanoseconds': 354785849, 'units': ''}]}
+{'ARIMA-SC-01SF:ERC-SUM': [{'value': 387194578, 'seconds': 888756017, 'nanoseconds': 231117744, 'units': ''}]}
+{'X05LA-VME-LA6:CALNCONN': []}
+{'ARIMA-QSG-05:PS-STERRSTR': [{'value': 'OK (0x00)', 'seconds': 888707876, 'nanoseconds': 424849038, 'units': ''}]}
+{'ARIMA-CV-12SE:ERC-DRTO': [{'value': 285887278, 'seconds': 888756000, 'nanoseconds': 70854745, 'units': ''}]}
+{'X11MA-ID1-CHD1:I-MAX': [{'value': 7.0, 'seconds': 888707940, 'nanoseconds': 914802670, 'units': 'A'}]}
+{'X05LA-VME-LA3:BUFPWAIT': [{'value': 0.0, 'seconds': 888753039, 'nanoseconds': 515340894, 'units': '#'}]}
+{'X05LA-ID1-CHD2:PS-ERROR': [{'value': 0, 'seconds': 888707940, 'nanoseconds': 955715239, 'units': ''}]}
+{'ARIMA-QSB-04:ERC-REG4': [{'value': 0, 'seconds': 888707877, 'nanoseconds': 916639014, 'units': ''}]}
+{'ARIVA-LM09-CH13:TEMP': [{'value': 28.850440992461657, 'seconds': 888754854, 'nanoseconds': 27226048, 'units': '\udcb0C'}]}
+{'X11MA-ID-CM3:PS-STERR': [{'value': 0, 'seconds': 888707882, 'nanoseconds': 257862134, 'units': ''}]}
+{'ARIDI-MBF-Y:CBM-23': [{'value': 0.0031093256548047066, 'seconds': 888707826, 'nanoseconds': 809299039, 'units': ''}]}
+{'ABODI-VME-BPM12:BOOTFILE': [{'value': bytearray(b'/ioc/T2-mv2300/vxWorks\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'), 'seconds': 888707882, 'nanoseconds': 281388863, 'units': ''}]}
+{'ARIDI-BPM-09SB:REFOFF-X': [{'value': -0.0016585809589173882, 'seconds': 888755974, 'nanoseconds': 293258909, 'units': 'mm'}]}
+{'ARIAL-HLS-10G4:PITCH': [{'value': -0.23287024738030188, 'seconds': 888707868, 'nanoseconds': 498957288, 'units': 'mrad'}]}
+{'ARIMA-QSD-10:PS-ERROR': [{'value': 0, 'seconds': 888707877, 'nanoseconds': 138902818, 'units': ''}]}
+{'ARIMA-QSD-12:ERC-DRFL': [{'value': 29857010, 'seconds': 888707876, 'nanoseconds': 323466329, 'units': ''}]}
+{'ARIMA-QLA-12:PS-MCALC': [{'value': 2.0, 'seconds': 888707877, 'nanoseconds': 836885261, 'units': ''}]}
+{'ARIRF-CAV4:OVcav': [{'value': 535.0674845502405, 'seconds': 888755879, 'nanoseconds': 398647814, 'units': 'kV'}]}
+{'ABOMA-CH-1S:DSP-FWVERS': [{'value': 47.0, 'seconds': 888707837, 'nanoseconds': 901166976, 'units': ''}]}
+{'ARIMA-CH-08SB:ERF-DSBR': [{'value': 0, 'seconds': 888707872, 'nanoseconds': 925135898, 'units': ''}]}
+{'ARIMA-CV-09SD:CUR-WINDIFF': [{'value': -0.0007111579179763794, 'seconds': 888755525, 'nanoseconds': 576691936, 'units': 'A'}]}
+{'ARIMA-CH-10SB:I-SRDIFF': [{'value': 0.0020156832347782427, 'seconds': 888755987, 'nanoseconds': 557708810, 'units': ''}]}
+{'ARIMA-CS-10SA:ERC-DRTO': [{'value': 46474618, 'seconds': 888707838, 'nanoseconds': 303372565, 'units': ''}]}
+{'X06SA-ID-CHU1:I-READ': [{'value': 0.6882407069206238, 'seconds': 888707940, 'nanoseconds': 884399914, 'units': 'A'}]}
+{'ARIMA-QLB-08:I-SET': [{'value': 52.40422100023189, 'seconds': 888707863, 'nanoseconds': 435038172, 'units': 'A'}]}
+{'ABRMA-B-1:ERF-IPPR': [{'value': 0, 'seconds': 888707845, 'nanoseconds': 362075297, 'units': ''}]}
+{'ALBMA-QC-3:ERC-SUM': [{'value': 386851, 'seconds': 888707856, 'nanoseconds': 21527847, 'units': ''}]}
+{'ARIDI-MBF-Y:CBM+118': [{'value': 0.003059126902371645, 'seconds': 888707824, 'nanoseconds': 296904003, 'units': ''}]}
+{'ARIMA-QSF-01:ERF-IPTX': [{'value': 0, 'seconds': 888755488, 'nanoseconds': 624735522, 'units': ''}]}
+{'ABOMA-CH-6E:ERF-DSBF': [{'value': 0, 'seconds': 888707874, 'nanoseconds': 780568016, 'units': ''}]}
+{'ABOMA-CH-3A:PS-ERROR': [{'value': 0, 'seconds': 888707841, 'nanoseconds': 914273441, 'units': ''}]}
+{'ARIMA-QFT2-05:ERC-REG1': [{'value': 47709092, 'seconds': 888707849, 'nanoseconds': 324087626, 'units': ''}]}
+{'ABORF-A0-KLY:ArcG': [{'value': 0, 'seconds': 888707864, 'nanoseconds': 156816004, 'units': ''}]}
+{'ARIAL-VME-2:BUFPDROP': [{'value': 0.0, 'seconds': 888707940, 'nanoseconds': 803724520, 'units': '#'}]}
+{'ARIMA-CH-02SE:ERC-REG1': [{'value': 0, 'seconds': 888707877, 'nanoseconds': 306636444, 'units': ''}]}
+{'ARIMA-CV-04SE:ERC-IPTO': [{'value': 0, 'seconds': 888707876, 'nanoseconds': 775546288, 'units': ''}]}
+{'ABRMA-CH-1:ERC-DSST': [{'value': 34128269, 'seconds': 888707852, 'nanoseconds': 143731296, 'units': ''}]}
+{'ARIMA-CH-05SD:PSID': [{'value': 37001005, 'seconds': 888707869, 'nanoseconds': 521048561, 'units': ''}]}
+{'ARIMA-QSD-01:HYS-CYWCALC': [{'value': 96.0, 'seconds': 888707877, 'nanoseconds': 961848416, 'units': ''}]}
+{'ARIMA-QLC-08:DSP-SYSSTAT': [{'value': 7983, 'seconds': 888753740, 'nanoseconds': 10186781, 'units': ''}]}
+{'ARIMA-QMG-10:PS-ERRORSTR': [{'value': 'OK (0x00)', 'seconds': 888707876, 'nanoseconds': 318364719, 'units': ''}]}
+{'ARIRF-WG1-CO1:PkrHM2': [{'value': 0, 'seconds': 888707858, 'nanoseconds': 644020839, 'units': ''}]}
+{'ARIDI-BPM-08LD:RMS-WARN-X': [{'value': 0, 'seconds': 888707822, 'nanoseconds': 277706267, 'units': ''}]}
+{'ARIMA-SC-10SF:PSID-COMP': [{'value': 0, 'seconds': 888707853, 'nanoseconds': 945007157, 'units': ''}]}
+{'ARIMA-CS-09LF:I-MIN': [{'value': -7.0, 'seconds': 888707876, 'nanoseconds': 904357083, 'units': 'A'}]}
+{'ARIDI-MBF-X:CBM+157': [{'value': 0.0002113340888172388, 'seconds': 888707824, 'nanoseconds': 297681758, 'units': ''}]}
+{'ARIRF-CAV4:VacUniv': [{'value': 1e-15, 'seconds': 888754857, 'nanoseconds': 865355342, 'units': 'mbar'}]}
+{'ARIDI-VME-C3:NETPDROP': [{'value': 0.0, 'seconds': 888707858, 'nanoseconds': 645466761, 'units': '#'}]}
+{'ARIMA-CS-04SA:ERC-DSST': [{'value': 35400569, 'seconds': 888707877, 'nanoseconds': 856798659, 'units': ''}]}
+{'X12SA-ID-CHD1:I-SRDIFF': [{'value': 0.00018442346263514153, 'seconds': 888755949, 'nanoseconds': 799541562, 'units': ''}]}
+{'ABRMA-CH-1:PS-STERR': [{'value': 0, 'seconds': 888707852, 'nanoseconds': 144144230, 'units': ''}]}
+{'ARIDI-BPM-SEC10:DIRWRITE-ERR': [{'value': 0, 'seconds': 888707822, 'nanoseconds': 570216266, 'units': ''}]}
+{'ARIMA-QLC-01:ERF-IPLD': [{'value': 0, 'seconds': 888755489, 'nanoseconds': 278795611, 'units': ''}]}
+{'ARIDI-BPM-02MD:GAIN-D-R': [{'value': 9649.0, 'seconds': 888707822, 'nanoseconds': 151726928, 'units': 'digits'}]}
+{'ARIRF-3HC-CST:VV714': [{'value': 0, 'seconds': 888707875, 'nanoseconds': 331239997, 'units': ''}]}
+{'ARIMA-QLA-08:PSID': [{'value': 54000302, 'seconds': 888707863, 'nanoseconds': 434342552, 'units': ''}]}
+{'ARIMA-CH-05LD:PS-MODE': [{'value': 2, 'seconds': 888707877, 'nanoseconds': 317780879, 'units': ''}]}
+{'ABOMA-CV-5D:ERF-IPLD': [{'value': 0, 'seconds': 888755488, 'nanoseconds': 512803480, 'units': ''}]}
+[17978, 62486, 67846, 42155, 6473, 63581, 27126, 68954, 10428, 23418, 78167, 19968, 46948, 77482, 35914, 55062, 62028, 407, 52706, 13990, 71694, 66974, 24105, 31952, 64284, 14121, 49320, 44132, 8942, 55172, 62902, 562, 2539, 36050, 52594, 41029, 2642, 15789, 32862, 48289, 78760, 8878, 22106, 53491, 50717, 78734, 73472, 7695, 73251, 60231, 42591, 64072, 44273, 61247, 24579, 22981, 41161, 58716, 54229, 76353, 31959, 24523, 53649, 71395, 61108, 57061, 18519, 19446, 41552, 47259, 8650, 47961, 7889, 2773, 57262, 53883, 21544, 36237, 29565, 67758, 63403, 55323, 12616, 49930, 870, 27098, 19395, 47652, 46668, 22454, 74101, 69007, 1935, 21140, 23838, 53209, 58332, 16020, 33270, 51600]
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_STRING
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_STRING
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_STRING
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_STRING
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_STRING
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_CHAR
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_STRING
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_DOUBLE
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_LONG
+PyObject_FromDBRType
+case DBR_TIME_ENUM
+PyObject_FromDBRType
+case DBR_TIME_ENUM
