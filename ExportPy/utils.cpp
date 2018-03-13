@@ -32,6 +32,28 @@ PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
         is_array = true;
     }
 
+    // NC: I would check if p_dbr_value is null before starting to use it.
+
+    // NC: Each case seem to repeat itself. Maybe you could implement a function like this:
+    //     template <typename T, typename U>
+    //     PyObject* convert(int count, PyObject* list, PyObject* (fun)(T)) {
+    //        const T *val = (const T *)((U *)p)->value;
+    //        if(count > 1) {
+    //            for (..){
+    //                fun(val[i])
+    //            }
+    //            return list
+    //        }
+    //        return fun(*val)
+    //     }
+    //
+    //     convert<dbr_enum_t, dbr_time_enum>(count, list, PyLong_FromLong);
+    //     convert<dbr_short_t, dbr_time_short>(count, list, PyLong_FromLong);
+    //
+    //     (It wont work for DecodeLocale unless a wrapper function is made.
+    //     Which maybe is a good idea since it always is called with
+    //     "surrogateescape")
+
     switch (type)
     {
         case DBR_TIME_STRING:{
@@ -39,9 +61,12 @@ PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
                 printf("case DBR_TIME_STRING\n");
             #endif
             const dbr_string_t * val = (const dbr_string_t *)((dbr_time_string *)p_dbr_value)->value;
+            // NC: Could val be null? I would check it before using it
             if (is_array){
                 for (int i = 0; i < count; ++i)
                 {
+                   // NC: Should this also be DecodeLocale?
+                   // NC: This function returns -1 on failure. Should be checked.
                    PyList_SetItem(list, i, PyUnicode_FromString(val[i]));
                    ++val;
                 }
@@ -159,6 +184,7 @@ PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
 PyObject *
 PyObyect_getStatusString(const RawValue::Data *value){
 
+    // NC: Can value be null?
     if((size_t) value->status < SIZEOF_ARRAY(epicsAlarmConditionStrings)) {
         return PyUnicode_DecodeLocale(epicsAlarmConditionStrings[value->status],"surrogateescape");
     }else{
@@ -191,6 +217,7 @@ PyObyect_getEnumString(const RawValue::Data *value, const CtrlInfo info){
 }
 
 
+// NC: This guy can return epicsTime instead of epicsTime*
 epicsTime * EpicsTime_FromPyDateTime(PyDateTime_DateTime * pyTime){
 
     struct tm tm_time = {0};
@@ -208,6 +235,8 @@ epicsTime * EpicsTime_FromPyDateTime(PyDateTime_DateTime * pyTime){
     return new epicsTime(tm_nano_sec);
 }   
 
+// NC: Try to use a more verbose name than 'O'. O is also disturbingly similar to 0.
+//     The second argument should probably be epicsTime*.
 int EpicsTime_FromPyDateTime_converter(PyDateTime_DateTime * O, epicsTime *&  epics_time){
 
     /* import datetime API */
@@ -215,10 +244,11 @@ int EpicsTime_FromPyDateTime_converter(PyDateTime_DateTime * O, epicsTime *&  ep
 
     if (!PyDateTime_Check(O)){
         PyErr_SetString(PyExc_TypeError, "parameters specifying time should be of DateTime Type");
-        return false;
+        return false; //< NC: Should return 0;
     }
 
+    // NC: Dereference epics_time here to replace it
     epics_time = EpicsTime_FromPyDateTime(O);
 
-    return true;
+    return true; //< NC: Should return 1
 }

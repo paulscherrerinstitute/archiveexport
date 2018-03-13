@@ -24,6 +24,8 @@
 
 #include "utils.h"
 
+// NC: Could use some test python script that shows how it works with some test index file
+
 /*
     Callable from python: archiverexport.list()
     Arguments:
@@ -41,18 +43,27 @@ archiveexport_list(PyObject *self, PyObject *args, PyObject *keywds)
 
     char *kwlist[] = {(char *)"index_name", (char *)"pattern", NULL};
 
+    // NC: You can avoid future traps by always using braces when doing if-else/while/for.
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|$s", kwlist, &index_name, &pattern ))
         return NULL;
 
     PyObject *list;
 
     list = PyList_New(0);
+    // NC: list could be null, always check return values
+    //     There is a lot of places where return values are not checked. I won't comment each of them.
 
     /* open index file */ 
     AutoIndex index;
     try{
         index.open(index_name);
     }catch (GenericException &e){
+        // NC: Print the filename/index that it failed to open.
+        //     The original author of ChannelArchiver _really_ failed to create an exception hierarchy.
+        //     It is sad that you have to catch a "Generic" exception and that you have to guess
+        //     the reason for it being thrown. Maybe you should print e.what() in case the reason wasn't
+        //     that it failed to open the file.
+        //     If you want to generate a more complex string to pass to python, look at std::ostringstream.
         PyErr_SetString(PyExc_FileNotFoundError, "Specified index file does not exist.");
         return NULL;
     }
@@ -66,15 +77,17 @@ archiveexport_list(PyObject *self, PyObject *args, PyObject *keywds)
 
         Index::NameIterator name_iter;
         if (!index.getFirstChannel(name_iter))
-            return list; // No names
+            return list; // No names //< NC: Maybe not so clear comment. Write that you are returning an empty list.
         do
         {
             if (regex && !regex->doesMatch(name_iter.getName()))
                 continue; // skip what doesn't match the regex
             // otherwise append it to the list
+            // NC: A problem with macros is that it is not clear here that archiveexport_list could return null here.
             PyList_AppendDECREF(list, PyUnicode_FromString(name_iter.getName().c_str()));
         }
         while (index.getNextChannel(name_iter));
+        // NC: getFirstChannel and getNextChannel is a pretty insane interface you have to deal with...
     }
     catch (GenericException &e)
     {
@@ -116,6 +129,7 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
     char *index_name = NULL;
     PyObject *channel_names = NULL;
     PyObject *channel_name = NULL;
+    // NC: Store start and end in this scope instead of on the heap.
     epicsTime * start = NULL;
     epicsTime * end = NULL;
     int get_units  = false;
@@ -137,6 +151,7 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
     if  (!PyArg_ParseTupleAndKeywords(args, keywds, "s|$O!O&O&ppp", kwlist, 
                                         &index_name, 
                                         &PyList_Type, &channel_names, 
+                                        // NC: Probably (void*) &start
                                         EpicsTime_FromPyDateTime_converter, &start, 
                                         EpicsTime_FromPyDateTime_converter, &end,
                                         &get_units,
@@ -149,11 +164,14 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
     n = PyList_Size(channel_names);
 
     // check channel names for type
+    // NC: Declare i inside the for()-statement
     int i;
     for (i = 0; i < n; i++){
         channel_name = PyList_GetItem(channel_names, i);
+        // NC: Check if channel_name is null
         if(!PyUnicode_Check(channel_name)){
             PyErr_SetString(PyExc_TypeError, "Channel names must be strings.");
+            // `delete` will go away if you store epicsTime in this scope instead of on the heap
             delete start; delete end; 
             return NULL;
         }
@@ -168,6 +186,8 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
         return NULL;
     }
 
+    // NC: Declare variables so that they are in the smallest scope possible.
+    //     "value" could have been declared inside the loop
     const RawValue::Data *value;
     AutoPtr<DataReader> reader(ReaderFactory::create(index, ReaderFactory::Raw, 0.0));
 
@@ -176,11 +196,14 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
     container_dict = PyDict_New();
     
     // for each channel name
+    // NC: Don't reuse i.
     for (i = 0; i < n; i++){
         channel_name = PyList_GetItem(channel_names, i);
+        // NC: Check null.
         
         // create first channel list
         PyObject *value_list = PyList_New(0);
+        // NC: Check null.
 
         // find first value
         value = reader->find(PyUnicode_AsUTF8(channel_name), start);

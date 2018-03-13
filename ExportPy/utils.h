@@ -59,9 +59,21 @@ epicsTime * EpicsTime_FromPyDateTime(PyDateTime_DateTime * pyTime);
 */
 int EpicsTime_FromPyDateTime_converter(PyDateTime_DateTime * O, epicsTime *& time);
 
+// NC: Usually it is much better to implement macros as functions.
+//     You can communicate failures with exceptions instead. If you want to
+//     make it easy you throw std::runtime_error. It takes a string as input
+//     that you can print with e.what(). You can then catch both
+//     GenericException& and std::runtime_error& after each other and
+//     differentiate. You can even catch std::exception& if you want to catch
+//     both types in one catch() clause.
+//
+//     Anyway if you want to keep the macros you need to wrap them in `do { }
+//     while(0)` for safety.
+
 /* 
     PyDict_SetItemString increases reference count for an object, so it needs to be decreased. 
 */
+// NC: Explain in comments why the reference count has to be decreased.
 #define PyDict_SetItemStringDECREF(dict, str_key, item) \
     {PyObject * pObj = item; \
     if(! pObj){ \
