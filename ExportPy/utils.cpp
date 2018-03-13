@@ -1,4 +1,4 @@
-#define AE_DEBUG
+/* #define AE_DEBUG */
 
 /* C */
 #include <time.h> 
@@ -7,9 +7,11 @@
 #include <Python.h>
 #include <datetime.h>
 
+/* Tools */
+#include <ArrayTools.h>
+
 /* Storage */
 #include <RawValue.h>
-
 
 
 #include "utils.h"
@@ -154,6 +156,40 @@ PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
     return NULL;
 }
 
+PyObject *
+PyObyect_getStatusString(const RawValue::Data *value){
+
+    if((size_t) value->status < SIZEOF_ARRAY(epicsAlarmConditionStrings)) {
+        return PyUnicode_DecodeLocale(epicsAlarmConditionStrings[value->status],"surrogateescape");
+    }else{
+        Py_RETURN_NONE;
+    }
+}
+
+PyObject *
+PyObyect_getSeverityString(const RawValue::Data *value){
+
+    if((size_t) value->status < SIZEOF_ARRAY(epicsAlarmSeverityStrings)) {
+        return PyUnicode_DecodeLocale(epicsAlarmSeverityStrings[value->status],"surrogateescape");
+    }else{
+        Py_RETURN_NONE;
+    }
+
+}
+PyObject *
+PyObyect_getEnumString(const RawValue::Data *value, const CtrlInfo info){
+
+    int enum_idx = ((dbr_time_enum *)value)->value;
+
+    if ((size_t) enum_idx < info.getNumStates()){
+        stdString enum_string;
+        info.getState(enum_idx, enum_string);
+        return PyUnicode_DecodeLocale(enum_string.c_str(),"surrogateescape");
+    } else{
+        Py_RETURN_NONE;
+    }
+}
+
 
 epicsTime * EpicsTime_FromPyDateTime(PyDateTime_DateTime * pyTime){
 
@@ -174,6 +210,7 @@ epicsTime * EpicsTime_FromPyDateTime(PyDateTime_DateTime * pyTime){
 
 int EpicsTime_FromPyDateTime_converter(PyDateTime_DateTime * O, epicsTime *&  epics_time){
 
+    /* import datetime API */
     if(!PyDateTimeAPI) PyDateTime_IMPORT;
 
     if (!PyDateTime_Check(O)){

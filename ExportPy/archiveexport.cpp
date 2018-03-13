@@ -4,15 +4,13 @@
 #include <Python.h>
 #include <datetime.h>
 
-// Epics Base
-#include <epicsVersion.h>
-
 // Tools
 #include <AutoPtr.h>
+#include <ArgParser.h>
 #include <BinaryTree.h>
 #include <RegularExpression.h>
 #include <epicsTimeHelper.h>
-#include <ArgParser.h>
+
 
 // Storage
 #include <AutoIndex.h>
@@ -20,8 +18,20 @@
 #include <RawDataReader.h>
 #include <RawValue.h>
 
+// Epics Base
+#include <epicsVersion.h>
+
+
 #include "utils.h"
 
+/*
+    Callable from python: archiverexport.list()
+    Arguments:
+        index_name            ... path to the index file
+        pattern (optional)    ... regex pattern for channel names
+    
+    Returns PyList of channel names.
+*/
 static PyObject *
 archiveexport_list(PyObject *self, PyObject *args, PyObject *keywds)
 {
@@ -38,11 +48,14 @@ archiveexport_list(PyObject *self, PyObject *args, PyObject *keywds)
 
     list = PyList_New(0);
 
+    /* open index file */ 
     AutoIndex index;
-    index.open(index_name);
-
-    // placeholders to ude with DECREF macros
-    PyObject * pObj;
+    try{
+        index.open(index_name);
+    }catch (GenericException &e){
+        PyErr_SetString(PyExc_FileNotFoundError, "Specified index file does not exist.");
+        return NULL;
+    }
 
     try
     {
@@ -50,7 +63,6 @@ archiveexport_list(PyObject *self, PyObject *args, PyObject *keywds)
         if (pattern && strlen(pattern)  > 0){
             regex.assign(new RegularExpression(pattern));
         }
-        
 
         Index::NameIterator name_iter;
         if (!index.getFirstChannel(name_iter))
@@ -58,50 +70,81 @@ archiveexport_list(PyObject *self, PyObject *args, PyObject *keywds)
         do
         {
             if (regex && !regex->doesMatch(name_iter.getName()))
-                continue; // skip what doesn't match regex
+                continue; // skip what doesn't match the regex
+            // otherwise append it to the list
             PyList_AppendDECREF(list, PyUnicode_FromString(name_iter.getName().c_str()));
         }
         while (index.getNextChannel(name_iter));
     }
     catch (GenericException &e)
     {
-        Py_DECREF(list);
-        throw GenericException(__FILE__, __LINE__,
-                               "Error expanding name pattern '%s':\n%s\n",
-                               pattern, e.what());
+        PyErr_SetString(PyExc_ValueError, e.what());
+        return NULL;
     }
 
     return list;
 }
+/*
+    Callable from python: archiverexport.get_data()
+    Arguments:
+        index_name            ... path to the index file
+        channels              ... list of channel names
+        start (optional)      ... start time (python datetime)
+        stop                  ... end time (python datetime)
+        get_units             ... get information about engineering units
+        get_status            ... get information about status and severity  
+        get_info              ... get high low, alarm, warning and display limits or enum string
 
-
+    Returns Dict of Lists of dicts:
+        {
+            "channel_name1": 
+                [
+                    {"value":value ,"seconds":seconds, "nanoseconds":nanoseconds, ...}
+                    {"value":value ,"seconds":seconds, "nanoseconds":nanoseconds, ...}
+                    ...
+                ],
+            "channel_name2":[...],
+            ...
+        }
+    If possible it allways returns one data point before start and one after stop and 
+    everything in between.
+*/
 static PyObject *
 archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
 {
 
-
-    char *index_name = NULL;;
+    char *index_name = NULL;
     PyObject *channel_names = NULL;
     PyObject *channel_name = NULL;
     epicsTime * start = NULL;
     epicsTime * end = NULL;
-
+    int get_units  = false;
+    int get_status = false;
+    int get_info   = false;
+    
     Py_ssize_t n;
 
-    char *kwlist[] = {(char *)"index_name", (char *)"channels", (char *)"start", (char *)"end", NULL};
+    char *kwlist[] = {  (char *)"index_name", 
+                        (char *)"channels", 
+                        (char *)"start", 
+                        (char *)"end",
+                        (char *)"get_units", 
+                        (char *)"get_status",
+                        (char *)"get_info",
+                        NULL
+                    };
 
-    if  (!PyArg_ParseTupleAndKeywords(args, keywds, "s|$O!O&O&", kwlist, 
+    if  (!PyArg_ParseTupleAndKeywords(args, keywds, "s|$O!O&O&ppp", kwlist, 
                                         &index_name, 
                                         &PyList_Type, &channel_names, 
                                         EpicsTime_FromPyDateTime_converter, &start, 
-                                        EpicsTime_FromPyDateTime_converter, &end 
+                                        EpicsTime_FromPyDateTime_converter, &end,
+                                        &get_units,
+                                        &get_status,
+                                        &get_info                                        
                                      ) 
         )
         return NULL;
-
-    //printf("start:%"PRIu32"\n", epicsTimeStamp(*start).secPastEpoch);
-    //printf("end:%"PRIu32"\n", epicsTimeStamp(*end).secPastEpoch);
-    
 
     n = PyList_Size(channel_names);
 
@@ -116,8 +159,14 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
         }
     }
 
+    /* open index file */ 
     AutoIndex index;
-    index.open(index_name);
+    try{
+        index.open(index_name);
+    }catch (GenericException &e){
+        PyErr_SetString(PyExc_FileNotFoundError, "Specified index file does not exist.");
+        return NULL;
+    }
 
     const RawValue::Data *value;
     AutoPtr<DataReader> reader(ReaderFactory::create(index, ReaderFactory::Raw, 0.0));
@@ -126,10 +175,6 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
     PyObject *container_dict;
     container_dict = PyDict_New();
     
-    // placeholders to use with DECREF macros from utils.h
-    PyObject * pObj;
-    PyObject * pKey;
-
     // for each channel name
     for (i = 0; i < n; i++){
         channel_name = PyList_GetItem(channel_names, i);
@@ -139,31 +184,56 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
 
         // find first value
         value = reader->find(PyUnicode_AsUTF8(channel_name), start);
-        epicsTime timestamp = RawValue::getTime(value);
 
         while (value)
         {
-            if (! RawValue::isInfo(value)){ // value returning true here is a special record indicating interruption in data recording
-
+            if (! RawValue::isInfo(value)){ // true here indicates a special record marking interruption in data recording
+                // create a placeholder for the value
                 PyObject *row_dict = PyDict_New();
                 // value 
                 PyDict_SetItemStringDECREF(row_dict, "value", PyObject_FromDBRType(value, reader->getType(), reader->getCount()));
+                //timestamp
+                epicsTime timestamp = RawValue::getTime(value);
                 // sec 
                 PyDict_SetItemStringDECREF(row_dict, "seconds", PyLong_FromLong(epicsTimeStamp(timestamp).secPastEpoch)); 
                 // nsec 
                 PyDict_SetItemStringDECREF(row_dict, "nanoseconds", PyLong_FromLong(epicsTimeStamp(timestamp).nsec));
                 // units  - surrogateescape does not fail on undecodable characters
-                PyDict_SetItemStringDECREF(row_dict, "units", PyUnicode_DecodeLocale(reader->getInfo().getUnits(),"surrogateescape"));
-
-                // append dict to list 
+                if(get_units && reader->getInfo().getType()==CtrlInfo::Numeric){
+                    PyDict_SetItemStringDECREF(row_dict, "unit", PyUnicode_DecodeLocale(reader->getInfo().getUnits(),"surrogateescape"));
+                }
+                // status & severity
+                if(get_status){
+                    PyDict_SetItemStringDECREF(row_dict, "status", PyLong_FromLong(value->status));
+                    PyDict_SetItemStringDECREF(row_dict, "status_string", PyObyect_getStatusString(value));
+                    PyDict_SetItemStringDECREF(row_dict, "severity", PyLong_FromLong(value->severity));
+                    PyDict_SetItemStringDECREF(row_dict, "severity_string", PyObyect_getSeverityString(value));
+                }
+                // info
+                if(get_info){
+                    if(reader->getInfo().getType()==CtrlInfo::Numeric){
+                        // all limit values are achived as floats
+                        PyDict_SetItemStringDECREF(row_dict, "low_alarm", PyFloat_FromDouble(reader->getInfo().getLowAlarm()));
+                        PyDict_SetItemStringDECREF(row_dict, "low_warn", PyFloat_FromDouble(reader->getInfo().getLowWarning()));
+                        PyDict_SetItemStringDECREF(row_dict, "high_warn", PyFloat_FromDouble(reader->getInfo().getHighAlarm()));
+                        PyDict_SetItemStringDECREF(row_dict, "high_alarm", PyFloat_FromDouble(reader->getInfo().getHighWarning()));
+                        PyDict_SetItemStringDECREF(row_dict, "disp_low", PyFloat_FromDouble(reader->getInfo().getDisplayLow()));
+                        PyDict_SetItemStringDECREF(row_dict, "disp_high", PyFloat_FromDouble(reader->getInfo().getDisplayHigh()));
+                        PyDict_SetItemStringDECREF(row_dict, "precision", PyLong_FromLong(reader->getInfo().getPrecision()));
+                    }
+                    if(reader->getType()==DBR_TIME_ENUM) {
+                        PyDict_SetItemStringDECREF(row_dict, "enum_string", PyObyect_getEnumString(value, reader->getInfo()));
+                    }
+                }
+    
+                // append dict to the list 
                 PyList_AppendDECREF(value_list, row_dict);
+
+                // break one node after the end timestamp
+                if (end && timestamp >= *end)
+                    break;
             }
-
-            // break after one node after the end timestamp
-            
-            if (end && timestamp >= *end)
-                break;
-
+            // next value
             value = reader->next();
         }
 
