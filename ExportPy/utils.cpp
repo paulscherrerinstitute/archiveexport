@@ -28,7 +28,9 @@ PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
 
     if(count > 1){
         /* it must be an array, generate a list of values */
-        list = PyList_New(count);
+        if(!(list = PyList_New(count))){
+            return NULL;
+        }
         is_array = true;
     }
 
@@ -65,9 +67,12 @@ PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
             if (is_array){
                 for (int i = 0; i < count; ++i)
                 {
-                   // NC: Should this also be DecodeLocale?
                    // NC: This function returns -1 on failure. Should be checked.
-                   PyList_SetItem(list, i, PyUnicode_FromString(val[i]));
+                   if(PyList_SetItem(list, i, PyUnicode_DecodeLocale(*val,"surrogateescape")) == -1){
+                        Py_DECREF(list);
+                        return NULL;
+                   }
+
                    ++val;
                 }
                 return list;
@@ -94,7 +99,10 @@ PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
             if (is_array){
                 for (int i = 0; i < count; ++i)
                 {
-                   PyList_SetItem(list, i, PyLong_FromLong(val[i]));
+                   if(PyList_SetItem(list, i, PyLong_FromLong(val[i])) == -1){
+                        Py_DECREF(list);
+                        return NULL;
+                   }
                    ++val;
                 }
                 return list;
@@ -111,7 +119,10 @@ PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
             if (is_array){
                 for (int i = 0; i < count; ++i)
                 {
-                   PyList_SetItem(list, i, PyLong_FromLong(val[i]));
+                   if(PyList_SetItem(list, i, PyLong_FromLong(val[i])) == -1){
+                        Py_DECREF(list);
+                        return NULL;
+                   }
                    ++val;
                 }
                 return list;
@@ -128,7 +139,10 @@ PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
             if (is_array){
                 for (int i = 0; i < count; ++i)
                 {
-                   PyList_SetItem(list, i, PyLong_FromLong(val[i]));
+                   if(PyList_SetItem(list, i, PyLong_FromLong(val[i])) == -1){
+                        Py_DECREF(list);
+                        return NULL;
+                   }
                    ++val;
                 }
                 return list;
@@ -144,7 +158,10 @@ PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
             if (is_array){
                 for (int i = 0; i < count; ++i)
                 {
-                   PyList_SetItem(list, i, PyFloat_FromDouble(val[i]));
+                   if(PyList_SetItem(list, i, PyFloat_FromDouble(val[i])) == -1){
+                        Py_DECREF(list);
+                        return NULL;
+                   }
                    ++val;
                 }
                 return list;
@@ -184,8 +201,7 @@ PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
 PyObject *
 PyObyect_getStatusString(const RawValue::Data *value){
 
-    // NC: Can value be null?
-    if((size_t) value->status < SIZEOF_ARRAY(epicsAlarmConditionStrings)) {
+    if(value && (size_t) value->status < SIZEOF_ARRAY(epicsAlarmConditionStrings)) {
         return PyUnicode_DecodeLocale(epicsAlarmConditionStrings[value->status],"surrogateescape");
     }else{
         Py_RETURN_NONE;
@@ -195,7 +211,7 @@ PyObyect_getStatusString(const RawValue::Data *value){
 PyObject *
 PyObyect_getSeverityString(const RawValue::Data *value){
 
-    if((size_t) value->status < SIZEOF_ARRAY(epicsAlarmSeverityStrings)) {
+    if(value && (size_t) value->status < SIZEOF_ARRAY(epicsAlarmSeverityStrings)) {
         return PyUnicode_DecodeLocale(epicsAlarmSeverityStrings[value->status],"surrogateescape");
     }else{
         Py_RETURN_NONE;
@@ -205,50 +221,51 @@ PyObyect_getSeverityString(const RawValue::Data *value){
 PyObject *
 PyObyect_getEnumString(const RawValue::Data *value, const CtrlInfo info){
 
-    int enum_idx = ((dbr_time_enum *)value)->value;
+    if (value){
+        int enum_idx = ((dbr_time_enum *)value)->value;
 
-    if ((size_t) enum_idx < info.getNumStates()){
-        stdString enum_string;
-        info.getState(enum_idx, enum_string);
-        return PyUnicode_DecodeLocale(enum_string.c_str(),"surrogateescape");
-    } else{
-        Py_RETURN_NONE;
-    }
+        if ((size_t) enum_idx < info.getNumStates()){
+            stdString enum_string;
+            info.getState(enum_idx, enum_string);
+
+            return PyUnicode_DecodeLocale(enum_string.c_str(),"surrogateescape");
+        }
+    } 
+
+    Py_RETURN_NONE;
 }
 
-
-// NC: This guy can return epicsTime instead of epicsTime*
-epicsTime * EpicsTime_FromPyDateTime(PyDateTime_DateTime * pyTime){
-
-    struct tm tm_time = {0};
-    tm_time.tm_year = PyDateTime_GET_YEAR(pyTime) - 1900;
-    tm_time.tm_mon = PyDateTime_GET_MONTH(pyTime) - 1;
-    tm_time.tm_mday = PyDateTime_GET_DAY(pyTime);
-    tm_time.tm_hour = PyDateTime_DATE_GET_HOUR(pyTime);
-    tm_time.tm_min = PyDateTime_DATE_GET_MINUTE(pyTime);
-    tm_time.tm_sec = PyDateTime_DATE_GET_SECOND(pyTime);
-
-    struct local_tm_nano_sec tm_nano_sec = {0};
-    tm_nano_sec.ansi_tm = tm_time;
-    tm_nano_sec.nSec = PyDateTime_DATE_GET_MICROSECOND(pyTime) * 1000;
-
-    return new epicsTime(tm_nano_sec);
-}   
-
-// NC: Try to use a more verbose name than 'O'. O is also disturbingly similar to 0.
-//     The second argument should probably be epicsTime*.
-int EpicsTime_FromPyDateTime_converter(PyDateTime_DateTime * O, epicsTime *&  epics_time){
+epicsTime EpicsTime_FromPyDateTime(PyDateTime_DateTime * py_datetime){
 
     /* import datetime API */
     if(!PyDateTimeAPI) PyDateTime_IMPORT;
 
-    if (!PyDateTime_Check(O)){
+    struct tm tm_time = {0};
+    tm_time.tm_year = PyDateTime_GET_YEAR(py_datetime) - 1900;
+    tm_time.tm_mon = PyDateTime_GET_MONTH(py_datetime) - 1;
+    tm_time.tm_mday = PyDateTime_GET_DAY(py_datetime);
+    tm_time.tm_hour = PyDateTime_DATE_GET_HOUR(py_datetime);
+    tm_time.tm_min = PyDateTime_DATE_GET_MINUTE(py_datetime);
+    tm_time.tm_sec = PyDateTime_DATE_GET_SECOND(py_datetime);
+
+    struct local_tm_nano_sec tm_nano_sec = {0};
+    tm_nano_sec.ansi_tm = tm_time;
+    tm_nano_sec.nSec = PyDateTime_DATE_GET_MICROSECOND(py_datetime) * 1000;
+
+    return epicsTime(tm_nano_sec);
+}   
+
+int EpicsTime_FromPyDateTimeConverter(PyDateTime_DateTime * py_datetime, void * epics_time){
+
+    /* import datetime API */
+    if(!PyDateTimeAPI) PyDateTime_IMPORT;
+
+    if (!PyDateTime_Check(py_datetime)){
         PyErr_SetString(PyExc_TypeError, "parameters specifying time should be of DateTime Type");
-        return false; //< NC: Should return 0;
+        return 0;
     }
 
-    // NC: Dereference epics_time here to replace it
-    epics_time = EpicsTime_FromPyDateTime(O);
+    * (epicsTime* ) epics_time = EpicsTime_FromPyDateTime(py_datetime);
 
-    return true; //< NC: Should return 1
+    return 1;
 }

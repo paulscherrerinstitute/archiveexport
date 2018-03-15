@@ -4,18 +4,22 @@ import archiveexport as ae
 
 import datetime
 now = datetime.datetime.now()
-end = now-datetime.timedelta(minutes=60)
-start = end-datetime.timedelta(seconds=0.1)
+end = now-datetime.timedelta(days=1)
+start = end-datetime.timedelta(days=1)
 
 
-# get 100 random channels
-channels = ae.list("/mnt/archiver/index", pattern="AR.*")
-print(channels)
+# get all channels starting with AR
+# channels = ae.list("/mnt/archiver/index", pattern="AR.*")
+# print(channels)
+
+channels = ae.list("/mnt/archiver/index")
+
+# query 100 random channels out of those starting with AR
 import random
 my_randoms = random.sample(range(len(channels)), 100)
-for i in my_randoms:
-    data = ae.get_data("/mnt/archiver/index", channels=channels[i:i+1], start=now, get_units=True, get_status=True, get_info=True)
-    print(data)
+random_channels = [channels[i] for i in my_randoms]
+data = ae.get_data("/mnt/archiver/index", channels=random_channels, start=start, end=end, get_units=True, get_status=True, get_info=True)
+print(data)
 
 # channels = ["ARIMA-CS-04LA:PS-ERRORLST", 
 #             "X05LA-ID1-CHU2:I-SRDIFF",
@@ -25,3 +29,8 @@ for i in my_randoms:
 # 
 # data = ae.get_data("/mnt/archiver/indexconfig.xml", channels=channels, start=now, get_units=True, get_status=True, get_info=True)
 # print(data)
+
+#rminate called after throwing an instance of 'GenericException'
+#  what():  ../RawDataReader.cpp (80): Channel 'ARIMA-SE:PS-STERRSTR':
+#../RTree.cpp (46): Datablock filename read error @ 0x19FCF92F
+#Aborted (core dumped)

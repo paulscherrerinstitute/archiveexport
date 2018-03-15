@@ -49,15 +49,15 @@ PyObject *
 PyObyect_getEnumString(const RawValue::Data *value, const CtrlInfo info);
 
 /*
-    Takes PyDateTime as an argument and returns new epicsTime object.
+    Takes PyDateTime as an argument and returns epicsTime.
 */
-epicsTime * EpicsTime_FromPyDateTime(PyDateTime_DateTime * pyTime);
+epicsTime EpicsTime_FromPyDateTime(PyDateTime_DateTime * py_datetime);
 
 /*
     this is a converter function used by PyArg_ParseTupleAndKeywords. It creates
     new epics time object and assigns it to time.
 */
-int EpicsTime_FromPyDateTime_converter(PyDateTime_DateTime * O, epicsTime *& time);
+int EpicsTime_FromPyDateTimeConverter(PyDateTime_DateTime * py_datetime, void * epics_time);
 
 // NC: Usually it is much better to implement macros as functions.
 //     You can communicate failures with exceptions instead. If you want to
@@ -71,11 +71,13 @@ int EpicsTime_FromPyDateTime_converter(PyDateTime_DateTime * O, epicsTime *& tim
 //     while(0)` for safety.
 
 /* 
-    PyDict_SetItemString increases reference count for an object, so it needs to be decreased. 
+    PyDict_SetItemString increases reference count for the item, so it needs to be decreased,
+    if the item is used only in the dict and nowhere else. 
+    See https://docs.python.org/3.6/c-api/intro.html for more info. 
+    Calls return NULL on error.
 */
-// NC: Explain in comments why the reference count has to be decreased.
 #define PyDict_SetItemStringDECREF(dict, str_key, item) \
-    {PyObject * pObj = item; \
+    do {PyObject * pObj = item; \
     if(! pObj){ \
         Py_DECREF(dict); \
         PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemStringDECREF item is NULL"); \
@@ -83,16 +85,20 @@ int EpicsTime_FromPyDateTime_converter(PyDateTime_DateTime * O, epicsTime *& tim
     } \
     if(PyDict_SetItemString(dict, str_key, pObj) == -1){ \
         Py_DECREF(dict); \
+        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemStringDECREF PyDict_SetItemString is not successfull"); \
         return NULL; \
     } \
-    Py_DECREF(pObj);} 
+    Py_DECREF(pObj);} while (0)
 
 /* 
-    PyDict_SetItem  increases reference count for an object, so it needs to be decreased.
     This macro decreases refcount for item and for key.
+    PyDict_SetItem  increases reference counts for key and item an object. They need to be decreased,
+    if they are used only within the dict and no where else separately.
+    See https://docs.python.org/3.6/c-api/intro.html for more info.
+    Calls return NULL on error.
 */
 #define PyDict_SetItemDECREF(dict, key, item) \
-    {PyObject * pObj = item; \
+    do {PyObject * pObj = item; \
     if(! pObj){ \
         Py_DECREF(dict); \
         PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREF item is NULL"); \
@@ -106,39 +112,47 @@ int EpicsTime_FromPyDateTime_converter(PyDateTime_DateTime * O, epicsTime *& tim
     } \
     if(PyDict_SetItem(dict, pKey, pObj) == -1){ \
         Py_DECREF(dict); \
+        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREF PyDict_SetItem not successfull"); \
         return NULL; \
     } \
     Py_DECREF(pObj); \
-    Py_DECREF(pKey);}
+    Py_DECREF(pKey);} while (0)
 
 /* 
-    PyDict_SetItem increases reference count for an object, so it needs to be decreased.  
     This macro decreases refcount for item only, in case key is stil used somewhere else.
+    PyDict_SetItem  increases reference counts for key and item an object. They need to be decreased,
+    if they are used only within the dict and no where else separately.
+    See https://docs.python.org/3.6/c-api/intro.html for more info.
+    Calls return NULL on error.
 */
 #define PyDict_SetItemDECREFItem(dict, key, item) \
-    {PyObject * pObj = item; \
+    do {PyObject * pObj = item; \
     if(! pObj){ \
         Py_DECREF(dict); \
-        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREF item is NULL"); \
+        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREFItem item is NULL"); \
         return NULL; \
     } \
     PyObject * pKey = key; \
     if(! pKey){ \
         Py_DECREF(dict); \
-        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREF key is NULL"); \
+        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREFItem key is NULL"); \
         return NULL; \
     } \
     if(PyDict_SetItem(dict, pKey, pObj) == -1){ \
         Py_DECREF(dict); \
+        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREFItem PyDict_SetItem not successfull"); \
         return NULL; \
     } \
-    Py_DECREF(pObj);}
+    Py_DECREF(pObj);} while (0)
 
 /* 
-    PyDict_SetItem increases reference count for an object, so it needs to be decreased.
+    PyList_Append  increases reference counts for the. It needs to be decreased,
+    if it is used only within the list and no where else separately.
+    See https://docs.python.org/3.6/c-api/intro.html for more info.
+    Calls return NULL on error.
 */
 #define PyList_AppendDECREF(list, item) \
-    {PyObject * pObj = item; \
+    do {PyObject * pObj = item; \
     if(! pObj){ \
         Py_DECREF(list); \
         PyErr_SetString(PyExc_RuntimeError, "PyList_AppendDECREF item is NULL"); \
@@ -146,8 +160,9 @@ int EpicsTime_FromPyDateTime_converter(PyDateTime_DateTime * O, epicsTime *& tim
     }  \
     if(PyList_Append(list, pObj) == -1){ \
         Py_DECREF(list); \
+        PyErr_SetString(PyExc_RuntimeError, "PyList_AppendDECREF PyList_Append not successfull"); \
         return NULL; \
     } \
-    Py_DECREF(pObj);}
+    Py_DECREF(pObj);} while (0)
 
 #endif
