@@ -4,13 +4,17 @@
 OS="`uname -s`"
 export OS
 
+# inconsistencies in epics build files
+if [[ "$OS" == "Linux" ]]; then
+    export AR="$AR -rc"
+fi
 
-make EPICS_BASE="$PREFIX/epics" PYTHON_INCLUDE=$PREFIX/include/python$PY_VER CC=$CC CCC=$CC
+make EPICS_BASE="$PREFIX/epics" PYTHON_INCLUDE=$PREFIX/include/python$PY_VER CC=$CC CCC=$CC AR="$AR" RANLIB=$RANLIB
 
 install -d $SP_DIR
 
 # Copy to Python’s site-packages location
-OS="`uname -s`"
+
 if [[ "$OS" == "Linux" ]]; then
     cp -av ExportPy/O.*/libarchiveexport.so $SP_DIR/archiveexport.so
 elif [[ "$OS" == "Darwin"* ]]; then
