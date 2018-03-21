@@ -7,6 +7,8 @@ export OS
 # inconsistencies in epics build files
 if [[ "$OS" == "Linux" ]]; then
     export AR="$AR -rc"
+elif [[ "$OS" == "Darwin"* ]]; then
+    export AR="$AR -rc"
 fi
 
 make EPICS_BASE="$PREFIX/epics" PYTHON_INCLUDE=$PREFIX/include/python$PY_VER CC=$CC CCC=$CC AR="$AR" RANLIB=$RANLIB
