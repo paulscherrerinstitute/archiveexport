@@ -17,76 +17,89 @@
 
 #include "utils.h"
 
+/* 
+    T - value type
+    U - dbr value type
+    cast - c type
+    p - pointer to the dbr_value
+    PyFun - python convert function
+*/
+template <typename T, typename U, typename cast>
+PyObject* dbr2pyobj(const void * p, int count, PyObject* (PyFun)(cast)) {
+    if(!p){
+        return NULL;
+    }
+    T *val = &((U *)p)->value;
+
+    if (! val){
+        return NULL;
+    }
+
+    if(count > 1) {
+        // create a list
+        PyObject * list;
+        if(!(list = PyList_New(count))){
+            return NULL;
+        }
+        // append all values to the list by converting the to PyObjects using PyFun
+        for (int i = 0; i < count; ++i){
+            if(PyList_SetItem(list, i, PyFun((cast) val[i])) == -1){
+                Py_DECREF(list);
+                return NULL;
+            }
+        }
+        return list;
+   }
+   return PyFun((cast) *val);
+}
+
 PyObject *
 PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
 
     #ifdef AE_DEBUG
         printf("PyObject_FromDBRType\n");
     #endif
-    
-    PyObject * list;
-    bool is_array = false;
 
-    if(count > 1){
-        /* it must be an array, generate a list of values */
-        if(!(list = PyList_New(count))){
-            return NULL;
-        }
-        is_array = true;
+    if(!p_dbr_value){
+        return NULL;
     }
-
-    // NC: I would check if p_dbr_value is null before starting to use it.
-
-    // NC: Each case seem to repeat itself. Maybe you could implement a function like this:
-    //     template <typename T, typename U>
-    //     PyObject* convert(int count, PyObject* list, PyObject* (fun)(T)) {
-    //        const T *val = (const T *)((U *)p)->value;
-    //        if(count > 1) {
-    //            for (..){
-    //                fun(val[i])
-    //            }
-    //            return list
-    //        }
-    //        return fun(*val)
-    //     }
-    //
-    //     convert<dbr_enum_t, dbr_time_enum>(count, list, PyLong_FromLong);
-    //     convert<dbr_short_t, dbr_time_short>(count, list, PyLong_FromLong);
-    //
-    //     (It wont work for DecodeLocale unless a wrapper function is made.
-    //     Which maybe is a good idea since it always is called with
-    //     "surrogateescape")
 
     switch (type)
     {
+
         case DBR_TIME_STRING:{
             #ifdef AE_DEBUG
                 printf("case DBR_TIME_STRING\n");
             #endif
             const dbr_string_t * val = (const dbr_string_t *)((dbr_time_string *)p_dbr_value)->value;
-            // NC: Could val be null? I would check it before using it
-            if (is_array){
+            if (! val){
+                return NULL;
+            }
+            if (count > 1){
+                PyObject * list;
+                if(!(list = PyList_New(count))){
+                    return NULL;
+                }
                 for (int i = 0; i < count; ++i)
                 {
-                   // NC: This function returns -1 on failure. Should be checked.
-                   if(PyList_SetItem(list, i, PyUnicode_DecodeLocale(*val,"surrogateescape")) == -1){
+                   if(PyList_SetItem(list, i, PyUnicode_Surrogateescape(*val)) == -1){
                         Py_DECREF(list);
                         return NULL;
                    }
-
                    ++val;
                 }
                 return list;
             }
             else 
-                return PyUnicode_DecodeLocale(*val,"surrogateescape"); // does not fail on undecodable characters
+                return PyUnicode_Surrogateescape(*val); // does not fail on undecodable characters
         }
+
         case DBR_TIME_CHAR:{
             #ifdef AE_DEBUG
                 printf("case DBR_TIME_CHAR\n");
             #endif
             dbr_char_t *val = &((dbr_time_char *)p_dbr_value)->value;
-            if (is_array) 
+            if (count > 1) 
                 return PyByteArray_FromStringAndSize((char *) val, count);
             else 
                 return PyLong_FromLong(*val);
@@ -96,96 +109,40 @@ PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
             #ifdef AE_DEBUG
                 printf("case DBR_TIME_ENUM\n");
             #endif
-            dbr_enum_t *val = &((dbr_time_enum *)p_dbr_value)->value;
-            if (is_array){
-                for (int i = 0; i < count; ++i)
-                {
-                   if(PyList_SetItem(list, i, PyLong_FromLong(val[i])) == -1){
-                        Py_DECREF(list);
-                        return NULL;
-                   }
-                   ++val;
-                }
-                return list;
-            }
-            else 
-                return PyLong_FromLong(*val);
+
+            return dbr2pyobj<dbr_enum_t, dbr_time_enum, long int>(p_dbr_value, count, PyLong_FromLong);
         }
 
         case DBR_TIME_SHORT:{
             #ifdef AE_DEBUG
                 printf("case DBR_TIME_SHORT\n");
             #endif
-            dbr_short_t *val = &((dbr_time_short *)p_dbr_value)->value;
-            if (is_array){
-                for (int i = 0; i < count; ++i)
-                {
-                   if(PyList_SetItem(list, i, PyLong_FromLong(val[i])) == -1){
-                        Py_DECREF(list);
-                        return NULL;
-                   }
-                   ++val;
-                }
-                return list;
-            }
-            else 
-                return PyLong_FromLong(*val);
+
+            return dbr2pyobj<dbr_short_t, dbr_time_short, long int>(p_dbr_value, count, PyLong_FromLong);
         }
         
         case DBR_TIME_LONG:{
             #ifdef AE_DEBUG
                 printf("case DBR_TIME_LONG\n");
             #endif   
-            dbr_long_t *val = &((dbr_time_long *)p_dbr_value)->value;
-            if (is_array){
-                for (int i = 0; i < count; ++i)
-                {
-                   if(PyList_SetItem(list, i, PyLong_FromLong(val[i])) == -1){
-                        Py_DECREF(list);
-                        return NULL;
-                   }
-                   ++val;
-                }
-                return list;
-            }
-            else 
-                return PyLong_FromLong(*val);
+
+            return dbr2pyobj<dbr_long_t, dbr_time_long, long int>(p_dbr_value, count, PyLong_FromLong);
+
         }
         case DBR_TIME_FLOAT:{
             #ifdef AE_DEBUG
                 printf("case DBR_TIME_FLOAT\n");
             #endif
-            dbr_float_t *val = &((dbr_time_float *)p_dbr_value)->value;
-            if (is_array){
-                for (int i = 0; i < count; ++i)
-                {
-                   if(PyList_SetItem(list, i, PyFloat_FromDouble(val[i])) == -1){
-                        Py_DECREF(list);
-                        return NULL;
-                   }
-                   ++val;
-                }
-                return list;
-            }
-            else 
-                return PyFloat_FromDouble(*val);
+
+            return dbr2pyobj<dbr_float_t, dbr_time_float, double>(p_dbr_value, count, PyFloat_FromDouble);
         }
 
         case DBR_TIME_DOUBLE:{
             #ifdef AE_DEBUG
                 printf("case DBR_TIME_DOUBLE\n");
             #endif     
-            dbr_double_t *val = &((dbr_time_double *)p_dbr_value)->value;
-            if (is_array){
-                for (int i = 0; i < count; ++i)
-                {
-                   PyList_SetItem(list, i, PyFloat_FromDouble(val[i]));
-                   ++val;
-                }
-                return list;
-            }
-            else 
-                return PyFloat_FromDouble(*val);
+
+            return dbr2pyobj<dbr_double_t, dbr_time_double, double>(p_dbr_value, count, PyFloat_FromDouble);
         }
 
         default:
@@ -199,31 +156,61 @@ PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
     return NULL;
 }
 
+
 void PyDict_SetItemStringDECREF(PyObject * dict, const char * str_key, PyObject * item){
     if(! item){ 
-        throw std::invalid_argument("PyDict_SetItemStringDECREF item is NULL"); 
+        throw std::runtime_error("PyDict_SetItemStringDECREF item is NULL"); 
     } 
-    if(PyDict_SetItemString(dict, str_key, item) == -1){ 
+    if(PyDict_SetItemString(dict, str_key, item) == -1){
+        Py_DECREF(item);
         throw std::runtime_error("PyDict_SetItemStringDECREF PyDict_SetItemString is not successfull");
     }
     Py_DECREF(item);
 }
 
-void PyDict_SetItemDECREF(PyObject * dict, const char * str_key, PyObject * item){
+
+void PyDict_SetItemDECREFItem(PyObject * dict, PyObject * key, PyObject * item) {
     if(! item){ 
-        throw std::invalid_argument("PyDict_SetItemStringDECREF item is NULL"); 
-    } 
-    if(PyDict_SetItemString(dict, str_key, item) == -1){ 
-        throw std::runtime_error("PyDict_SetItemStringDECREF PyDict_SetItemString is not successfull");
+        throw std::runtime_error("PyDict_SetItemDECREFItem item is NULL"); 
     }
+    if(! key){ 
+        throw std::runtime_error("PyDict_SetItemDECREFItem key is NULL"); 
+    } 
+    if(PyDict_SetItem(dict, key, item) == -1){
+        Py_DECREF(item);
+        throw std::runtime_error("PyDict_SetItemDECREFItem PyDict_SetItemString is not successfull");
+    } 
     Py_DECREF(item);
 }
+
+
+void PyDict_SetItemDECREF(PyObject * dict, PyObject * key, PyObject * item){
+    try{
+        PyDict_SetItemDECREFItem(dict, key, item);
+    }catch(std::exception &e) {
+        Py_DECREF(key);
+        throw e;
+    }
+    Py_DECREF(key);
+}
+
+void PyList_AppendDECREF(PyObject * list, PyObject * item){
+    if(! item){ 
+        throw std::runtime_error("PyList_AppendDECREF item is NULL"); 
+    }  
+    if(PyList_Append(list, item) == -1){
+        Py_DECREF(item);
+        throw std::runtime_error("PyList_AppendDECREF PyList_Append not successfull");
+    }  
+    Py_DECREF(item);
+}
+
 
 PyObject *
 PyObyect_getStatusString(const RawValue::Data *value){
 
     if(value && (size_t) value->status < SIZEOF_ARRAY(epicsAlarmConditionStrings)) {
-        return PyUnicode_DecodeLocale(epicsAlarmConditionStrings[value->status],"surrogateescape");
+        return PyUnicode_Surrogateescape(epicsAlarmConditionStrings[value->status]);
     }else{
         Py_RETURN_NONE;
     }
@@ -233,7 +220,7 @@ PyObject *
 PyObyect_getSeverityString(const RawValue::Data *value){
 
     if(value && (size_t) value->status < SIZEOF_ARRAY(epicsAlarmSeverityStrings)) {
-        return PyUnicode_DecodeLocale(epicsAlarmSeverityStrings[value->status],"surrogateescape");
+        return PyUnicode_Surrogateescape(epicsAlarmSeverityStrings[value->status]);
     }else{
         Py_RETURN_NONE;
     }
@@ -249,11 +236,16 @@ PyObyect_getEnumString(const RawValue::Data *value, const CtrlInfo info){
             stdString enum_string;
             info.getState(enum_idx, enum_string);
 
-            return PyUnicode_DecodeLocale(enum_string.c_str(),"surrogateescape");
+            return PyUnicode_Surrogateescape(enum_string.c_str());
         }
     } 
 
     Py_RETURN_NONE;
+}
+
+
+PyObject * PyUnicode_Surrogateescape(const char* string){
+    return PyUnicode_DecodeLocale(string,"surrogateescape");
 }
 
 epicsTime EpicsTime_FromPyDateTime(PyDateTime_DateTime * py_datetime){

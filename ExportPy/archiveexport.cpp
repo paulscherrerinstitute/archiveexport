@@ -58,7 +58,7 @@ archiveexport_list(PyObject *self, PyObject *args, PyObject *keywds)
         index.open(index_name, true);
     }catch (GenericException &e){
         // guessing that file was not found
-        PyErr_SetString(PyExc_FileNotFoundError, e.what());
+        PyErr_SetString(PyExc_RuntimeError, e.what());
         return NULL;
     }
 
@@ -79,7 +79,6 @@ archiveexport_list(PyObject *self, PyObject *args, PyObject *keywds)
             if (regex && !regex->doesMatch(name_iter.getName()))
                 continue; // skip what doesn't match the regex
             // otherwise append it to the list
-            // NC: A problem with macros is that it is not clear here that archiveexport_list could return null here.
             PyList_AppendDECREF(list, PyUnicode_FromString(name_iter.getName().c_str()));
         }
         while (index.getNextChannel(name_iter));
@@ -87,7 +86,7 @@ archiveexport_list(PyObject *self, PyObject *args, PyObject *keywds)
     }
     catch (GenericException &e)
     {
-        PyErr_SetString(PyExc_ValueError, e.what());
+        PyErr_SetString(PyExc_RuntimeError, e.what());
         return NULL;
     }
 
@@ -176,7 +175,7 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
     try{
         index.open(index_name, true);
     }catch (GenericException &e){
-        PyErr_SetString(PyExc_FileNotFoundError, "Specified index file does not exist.");
+        PyErr_SetString(PyExc_RuntimeError, e.what());
         return NULL;
     }
     
@@ -189,82 +188,101 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
         return NULL;
     }
     
-    // for each channel name
-    for (int i = 0; i < n; i++){
-        if(!(channel_name = PyList_GetItem(channel_names, i))){
-            return NULL; // PyExc is set by PyList_GetItem
-        }
-        
-        // create first channel list
-        PyObject *value_list; 
-        if(!(value_list = PyList_New(0))) {
-            PyErr_SetString(PyExc_RuntimeError, "List could not be created.");
-            return NULL;
-        }
-
-        // find first value
-        const RawValue::Data *value;
-        try{    
-            value = reader->find(PyUnicode_AsUTF8(channel_name), &start);
-        }catch (GenericException &e){
-            PyErr_SetString(PyExc_RuntimeError, e.what());
-            return NULL;
-        }
-        while (value)
-        {
-            if (! RawValue::isInfo(value)){ // true here indicates a special record marking interruption in data recording
-                // create a placeholder for the value
-                PyObject *row_dict = PyDict_New();
-                // value 
-                PyDict_SetItemStringDECREF(row_dict, "value", PyObject_FromDBRType(value, reader->getType(), reader->getCount()));
-                //timestamp
-                epicsTime timestamp = RawValue::getTime(value);
-                // sec 
-                PyDict_SetItemStringDECREF(row_dict, "seconds", PyLong_FromLong(epicsTimeStamp(timestamp).secPastEpoch)); 
-                // nsec 
-                PyDict_SetItemStringDECREF(row_dict, "nanoseconds", PyLong_FromLong(epicsTimeStamp(timestamp).nsec));
-                // units  - surrogateescape does not fail on undecodable characters
-                if(get_units && reader->getInfo().getType()==CtrlInfo::Numeric){
-                    PyDict_SetItemStringDECREF(row_dict, "unit", PyUnicode_DecodeLocale(reader->getInfo().getUnits(),"surrogateescape"));
-                }
-                // status & severity
-                if(get_status){
-                    PyDict_SetItemStringDECREF(row_dict, "status", PyLong_FromLong(value->status));
-                    PyDict_SetItemStringDECREF(row_dict, "status_string", PyObyect_getStatusString(value));
-                    PyDict_SetItemStringDECREF(row_dict, "severity", PyLong_FromLong(value->severity));
-                    PyDict_SetItemStringDECREF(row_dict, "severity_string", PyObyect_getSeverityString(value));
-                }
-                // info
-                if(get_info){
-                    if(reader->getInfo().getType()==CtrlInfo::Numeric){
-                        // all limit values are achived as floats
-                        PyDict_SetItemStringDECREF(row_dict, "low_alarm", PyFloat_FromDouble(reader->getInfo().getLowAlarm()));
-                        PyDict_SetItemStringDECREF(row_dict, "low_warn", PyFloat_FromDouble(reader->getInfo().getLowWarning()));
-                        PyDict_SetItemStringDECREF(row_dict, "high_warn", PyFloat_FromDouble(reader->getInfo().getHighAlarm()));
-                        PyDict_SetItemStringDECREF(row_dict, "high_alarm", PyFloat_FromDouble(reader->getInfo().getHighWarning()));
-                        PyDict_SetItemStringDECREF(row_dict, "disp_low", PyFloat_FromDouble(reader->getInfo().getDisplayLow()));
-                        PyDict_SetItemStringDECREF(row_dict, "disp_high", PyFloat_FromDouble(reader->getInfo().getDisplayHigh()));
-                        PyDict_SetItemStringDECREF(row_dict, "precision", PyLong_FromLong(reader->getInfo().getPrecision()));
-                    }
-                    if(reader->getType()==DBR_TIME_ENUM) {
-                        PyDict_SetItemStringDECREF(row_dict, "enum_string", PyObyect_getEnumString(value, reader->getInfo()));
-                    }
-                }
-    
-                // append dict to the list 
-                PyList_AppendDECREF(value_list, row_dict);
-
-                // break one node after the end timestamp if end was set (is greater than 0) 
-                if (end > epicsTime() && timestamp >= end)
-                    break;
+    try{
+        // for each channel name
+        for (int i = 0; i < n; i++){
+            if(!(channel_name = PyList_GetItem(channel_names, i))){
+                return NULL; // PyExc is set by PyList_GetItem
             }
-            // next value
-            value = reader->next();
+            
+            // create first channel list
+            PyObject *value_list; 
+            if(!(value_list = PyList_New(0))) {
+                PyErr_SetString(PyExc_RuntimeError, "List could not be created.");
+                return NULL;
+            }
+
+            // find first value
+            const RawValue::Data *value;
+            try{    
+                value = reader->find(PyUnicode_AsUTF8(channel_name), &start);
+            }catch (GenericException &e){
+                PyErr_SetString(PyExc_RuntimeError, e.what());
+                return NULL;
+            }
+            while (value)
+            {
+                if (! RawValue::isInfo(value)){ // true here indicates a special record marking interruption in data recording
+                    // create a placeholder for the value
+                    PyObject *row_dict;
+
+                    if(!(row_dict = PyDict_New())){
+                        PyErr_SetString(PyExc_RuntimeError, "row_dict could not be created.");
+                        return NULL;
+                    }
+
+                    //timestamp
+                    epicsTime timestamp = RawValue::getTime(value);
+
+                    try{
+                        // value 
+                        PyDict_SetItemStringDECREF(row_dict, "value", PyObject_FromDBRType(value, reader->getType(), reader->getCount()));
+                        // sec 
+                        PyDict_SetItemStringDECREF(row_dict, "seconds", PyLong_FromLong(epicsTimeStamp(timestamp).secPastEpoch)); 
+                        // nsec 
+                        PyDict_SetItemStringDECREF(row_dict, "nanoseconds", PyLong_FromLong(epicsTimeStamp(timestamp).nsec));
+                        // units  - surrogateescape does not fail on undecodable characters
+                        if(get_units && reader->getInfo().getType()==CtrlInfo::Numeric){
+                            PyDict_SetItemStringDECREF(row_dict, "unit", PyUnicode_Surrogateescape(reader->getInfo().getUnits()));
+                        }
+                        // status & severity
+                        if(get_status){
+                            PyDict_SetItemStringDECREF(row_dict, "status", PyLong_FromLong(value->status));
+                            PyDict_SetItemStringDECREF(row_dict, "status_string", PyObyect_getStatusString(value));
+                            PyDict_SetItemStringDECREF(row_dict, "severity", PyLong_FromLong(value->severity));
+                            PyDict_SetItemStringDECREF(row_dict, "severity_string", PyObyect_getSeverityString(value));
+                        }
+                        // info
+                        if(get_info){
+                            if(reader->getInfo().getType()==CtrlInfo::Numeric){
+                                // all limit values are achived as floats
+                                PyDict_SetItemStringDECREF(row_dict, "low_alarm", PyFloat_FromDouble(reader->getInfo().getLowAlarm()));
+                                PyDict_SetItemStringDECREF(row_dict, "low_warn", PyFloat_FromDouble(reader->getInfo().getLowWarning()));
+                                PyDict_SetItemStringDECREF(row_dict, "high_warn", PyFloat_FromDouble(reader->getInfo().getHighAlarm()));
+                                PyDict_SetItemStringDECREF(row_dict, "high_alarm", PyFloat_FromDouble(reader->getInfo().getHighWarning()));
+                                PyDict_SetItemStringDECREF(row_dict, "disp_low", PyFloat_FromDouble(reader->getInfo().getDisplayLow()));
+                                PyDict_SetItemStringDECREF(row_dict, "disp_high", PyFloat_FromDouble(reader->getInfo().getDisplayHigh()));
+                                PyDict_SetItemStringDECREF(row_dict, "precision", PyLong_FromLong(reader->getInfo().getPrecision()));
+                            }
+                            if(reader->getType()==DBR_TIME_ENUM) {
+                                PyDict_SetItemStringDECREF(row_dict, "enum_string", PyObyect_getEnumString(value, reader->getInfo()));
+                            }
+                        }
+                    }
+                    catch(std::exception &e){
+                        Py_DECREF(row_dict);
+                        throw e;
+                    }
+                    // append dict to the list 
+                    PyList_AppendDECREF(value_list, row_dict);
+
+
+                    // break one node after the end timestamp if end was set (is greater than 0) 
+                    if (end > epicsTime() && timestamp >= end)
+                        break;
+                }
+                // next value
+                value = reader->next();
+            }
+
+            // add values list to the dictionary, dispose item only, since key is still used in channel_names
+            PyDict_SetItemDECREFItem(container_dict, channel_name, value_list);
+
         }
-
-        // add values list to the dictionary, dispose item only, since key is still used in channel_names
-        PyDict_SetItemDECREFItem(container_dict, channel_name, value_list);
-
+    }catch(std::exception &e){
+        PyErr_SetString(PyExc_RuntimeError, e.what());
+        Py_DECREF(container_dict);
+        return NULL;
     }
 
     return container_dict;
@@ -293,6 +311,6 @@ static struct PyModuleDef archiveexportmodule = {
 PyMODINIT_FUNC
 PyInit_archiveexport(void)
 {
-    PyDateTimeAPI = (PyDateTime_CAPI *)PyCapsule_Import(PyDateTime_CAPSULE_NAME, 0);
+    if(!PyDateTimeAPI) PyDateTime_IMPORT;
     return PyModule_Create(&archiveexportmodule);
 }

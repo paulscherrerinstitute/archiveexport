@@ -54,119 +54,50 @@ PyObyect_getEnumString(const RawValue::Data *value, const CtrlInfo info);
 epicsTime EpicsTime_FromPyDateTime(PyDateTime_DateTime * py_datetime);
 
 /*
-    this is a converter function used by PyArg_ParseTupleAndKeywords. It creates
+    This is a converter function used by PyArg_ParseTupleAndKeywords. It creates
     new epics time object and assigns it to time.
 */
 int EpicsTime_FromPyDateTimeConverter(PyDateTime_DateTime * py_datetime, void * epics_time);
-
-// NC: Usually it is much better to implement macros as functions.
-//     You can communicate failures with exceptions instead. If you want to
-//     make it easy you throw std::runtime_error. It takes a string as input
-//     that you can print with e.what(). You can then catch both
-//     GenericException& and std::runtime_error& after each other and
-//     differentiate. You can even catch std::exception& if you want to catch
-//     both types in one catch() clause.
-//
-//     Anyway if you want to keep the macros you need to wrap them in `do { }
-//     while(0)` for safety.
 
 /* 
     PyDict_SetItemString increases reference count for the item, so it needs to be decreased,
     if the item is used only in the dict and nowhere else. 
     See https://docs.python.org/3.6/c-api/intro.html for more info. 
-    Calls return NULL on error.
+    Throws std:runtime_error on failure.
 */
-void PyDict_SetItemStringDECREF(PyObject *, const char * str_key, PyObject * item);
-
-//#define PyDict_SetItemStringDECREF(dict, str_key, item) \
-//    do {PyObject * pObj = item; \
-//    if(! pObj){ \
-//        Py_DECREF(dict); \
-//        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemStringDECREF item is NULL"); \
-//        return NULL; \
-//    } \
-//    if(PyDict_SetItemString(dict, str_key, pObj) == -1){ \
-//        Py_DECREF(dict); \
-//        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemStringDECREF PyDict_SetItemString is not successfull"); \
-//        return NULL; \
-//    } \
-//    Py_DECREF(pObj);} while (0)
+void PyDict_SetItemStringDECREF(PyObject* dict, const char* str_key, PyObject* item);
 
 /* 
-    This macro decreases refcount for item and for key.
+    This function decreases refcount for item and for key.
     PyDict_SetItem  increases reference counts for key and item an object. They need to be decreased,
     if they are used only within the dict and no where else separately.
     See https://docs.python.org/3.6/c-api/intro.html for more info.
-    Calls return NULL on error.
+    Throws std:runtime_error on failure.
 */
-void PyDict_SetItemStringDECREF(PyObject *, PyObject * key, PyObject * item);
-
-//#define PyDict_SetItemDECREF(dict, key, item) \
-//    do {PyObject * pObj = item; \
-//    if(! pObj){ \
-//        Py_DECREF(dict); \
-//        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREF item is NULL"); \
-//        return NULL; \
-//    } \
-//    PyObject * pKey = key; \
-//    if(! pKey){ \
-//        Py_DECREF(dict); \
-//        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREF key is NULL"); \
-//        return NULL; \
-//    } \
-//    if(PyDict_SetItem(dict, pKey, pObj) == -1){ \
-//        Py_DECREF(dict); \
-//        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREF PyDict_SetItem not successfull"); \
-//        return NULL; \
-//    } \
-//    Py_DECREF(pObj); \
-//    Py_DECREF(pKey);} while (0)
+void PyDict_SetItemDECREF(PyObject* dict, PyObject* key, PyObject* item);
 
 /* 
     This macro decreases refcount for item only, in case key is stil used somewhere else.
     PyDict_SetItem  increases reference counts for key and item an object. They need to be decreased,
     if they are used only within the dict and no where else separately.
     See https://docs.python.org/3.6/c-api/intro.html for more info.
-    Calls return NULL on error.
+    Throws std:runtime_error on failure.
 */
-#define PyDict_SetItemDECREFItem(dict, key, item) \
-    do {PyObject * pObj = item; \
-    if(! pObj){ \
-        Py_DECREF(dict); \
-        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREFItem item is NULL"); \
-        return NULL; \
-    } \
-    PyObject * pKey = key; \
-    if(! pKey){ \
-        Py_DECREF(dict); \
-        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREFItem key is NULL"); \
-        return NULL; \
-    } \
-    if(PyDict_SetItem(dict, pKey, pObj) == -1){ \
-        Py_DECREF(dict); \
-        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREFItem PyDict_SetItem not successfull"); \
-        return NULL; \
-    } \
-    Py_DECREF(pObj);} while (0)
+void PyDict_SetItemDECREFItem(PyObject* dict, PyObject* key, PyObject* item);
 
 /* 
-    PyList_Append  increases reference counts for the. It needs to be decreased,
+    PyList_Append  increases reference counts for the item. It needs to be decreased,
     if it is used only within the list and no where else separately.
     See https://docs.python.org/3.6/c-api/intro.html for more info.
-    Calls return NULL on error.
+    Throws std:runtime_error on failure.
 */
-#define PyList_AppendDECREF(list, item) \
-    do {PyObject * pObj = item; \
-    if(! pObj){ \
-        Py_DECREF(list); \
-        PyErr_SetString(PyExc_RuntimeError, "PyList_AppendDECREF item is NULL"); \
-        return NULL; \
-    }  \
-    if(PyList_Append(list, pObj) == -1){ \
-        Py_DECREF(list); \
-        PyErr_SetString(PyExc_RuntimeError, "PyList_AppendDECREF PyList_Append not successfull"); \
-        return NULL; \
-    } \
-    Py_DECREF(pObj);} while (0)
+void PyList_AppendDECREF(PyObject * list, PyObject * item);
+
+/*
+    convert char * to PyUnicode using PyUnicode_DecodeLocale(*str,"surrogateescape")
+    Surrogateescape does not fail on undecodable characters
+*/
+PyObject *
+PyUnicode_Surrogateescape(const char* string);
 
 #endif
