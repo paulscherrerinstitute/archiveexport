@@ -5,7 +5,7 @@ OS="`uname -s`"
 export OS
 
 
-EPICS_BASE="$PREFIX/epics" PYTHON_INCLUDE=$PREFIX/include/python$PY_VER make
+make EPICS_BASE="$PREFIX/epics" PYTHON_INCLUDE=$PREFIX/include/python$PY_VER CC=$CC CCC=$CC
 
 install -d $SP_DIR
 
