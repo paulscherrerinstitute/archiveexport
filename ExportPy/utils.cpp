@@ -1,7 +1,8 @@
 /* #define AE_DEBUG */
 
-/* C */
+/* C, C++ */
 #include <time.h> 
+#include <stdexcept>
 
 /* Python*/
 #include <Python.h>
@@ -196,6 +197,26 @@ PyObject_FromDBRType(const void *p_dbr_value, DbrType type, DbrCount count){
 
     
     return NULL;
+}
+
+void PyDict_SetItemStringDECREF(PyObject * dict, const char * str_key, PyObject * item){
+    if(! item){ 
+        throw std::invalid_argument("PyDict_SetItemStringDECREF item is NULL"); 
+    } 
+    if(PyDict_SetItemString(dict, str_key, item) == -1){ 
+        throw std::runtime_error("PyDict_SetItemStringDECREF PyDict_SetItemString is not successfull");
+    }
+    Py_DECREF(item);
+}
+
+void PyDict_SetItemDECREF(PyObject * dict, const char * str_key, PyObject * item){
+    if(! item){ 
+        throw std::invalid_argument("PyDict_SetItemStringDECREF item is NULL"); 
+    } 
+    if(PyDict_SetItemString(dict, str_key, item) == -1){ 
+        throw std::runtime_error("PyDict_SetItemStringDECREF PyDict_SetItemString is not successfull");
+    }
+    Py_DECREF(item);
 }
 
 PyObject *

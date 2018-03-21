@@ -1,13 +1,21 @@
 TOP:=$(TOP)/..
 include $(TOP)/configure/CONFIG
 
+LIBRARY = archiveexport
 LIB_SRCS += archiveexport.cpp
 LIB_SRCS += utils.cpp
-LIBRARY_HOST = archiveexport
 
-USR_CXXFLAGS  = -I$(PYTHON_INCLUDE)m -I$(PYTHON) -I$(INSTALL_LOCATION)/Storage -I$(INSTALL_LOCATION)/Tools -I$(EPICS_BASE)/include -I$(EPICS_BASE)/include/os/$(OS_CLASS)
+# channel archiver
+LIB_LIBS += Storage
+LIB_LIBS += Tools
 
-OP_SYS_LDLIBS = $(INSTALL_LOCATION)/Storage/O.$(EPICS_HOST_ARCH)/libStorage.a $(INSTALL_LOCATION)/Tools/O.$(EPICS_HOST_ARCH)/libTools.a -Wl,-rpath $(EPICS_BASE)/lib/$(EPICS_HOST_ARCH) -L$(EPICS_BASE)/lib/$(EPICS_HOST_ARCH) -lCom -lca -L$(XERCES_LIB) -lxerces-c
+# epics base
+LIB_SYS_LIBS += Com ca
+USR_LDFLAGS += -L$(EPICS_BASE)/lib/$(EPICS_HOST_ARCH)
+
+# python
+USR_INCLUDES  += -I$(PYTHON_INCLUDE)m
+
 
 
 include $(TOP)/configure/RULES

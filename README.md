@@ -121,13 +121,11 @@ source activate ArchiveExport
 The library relies on the following packages:
 
 - python
-- conda-forge/xerces-c28
-- paulscherrerinstitute/epics-base
+- epics-base
 
 As conda is being used to install the packages, add the **paulscherrerinstitute** channel and **conda-forge** to the conda config:
 ```
 conda config --add channels paulscherrerinstitute
-conda config --add channels conda-forge
 ```
 
 ### Anaconda build

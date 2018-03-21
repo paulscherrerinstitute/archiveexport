@@ -36,7 +36,7 @@ INC += string2cp.h
 INC += Throttle.h
 INC += ThrottledMsgLogger.h
 INC += UnitTest.h
-INC += FUX.h       
+#INC += FUX.h       
 LIB_SRCS += ArchiveException.cpp
 LIB_SRCS += ArgParser.cpp
 LIB_SRCS += ASCIIParser.cpp
@@ -59,7 +59,7 @@ LIB_SRCS += stdString.cpp
 LIB_SRCS += Throttle.cpp
 LIB_SRCS += ThrottledMsgLogger.cpp
 LIB_SRCS += UnitTestLib.cpp
-LIB_SRCS += FUX.cpp
+#LIB_SRCS += FUX.cpp
 # WIN32 only...
 LIB_SRCS_WIN32 = gnu_regex.c
 LIBRARY_HOST = Tools

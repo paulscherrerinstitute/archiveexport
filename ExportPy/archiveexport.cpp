@@ -13,7 +13,7 @@
 
 
 // Storage
-#include <AutoIndex.h>
+#include <IndexFile.h>
 #include <ReaderFactory.h>
 #include <RawDataReader.h>
 #include <RawValue.h>
@@ -53,7 +53,7 @@ archiveexport_list(PyObject *self, PyObject *args, PyObject *keywds)
     }
     
     /* open index file in readonly mode */ 
-    AutoIndex index;
+    IndexFile index;
     try{
         index.open(index_name, true);
     }catch (GenericException &e){
@@ -172,7 +172,7 @@ archiveexport_get_data(PyObject *self, PyObject *args, PyObject *keywds)
     }
 
     /* open index file in readonly mode */ 
-    AutoIndex index;
+    IndexFile index;
     try{
         index.open(index_name, true);
     }catch (GenericException &e){

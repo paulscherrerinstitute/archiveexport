@@ -7,6 +7,9 @@
 # Hint: You can use $() macros but no ${} macros here.
 
 # Location of external products
-EPICS_BASE=/opt/epics/base
 
-XERCES_LIB=/usr/lib/x86_64-linux-gnu
+
+EPICS_BASE=
+
+
+# XERCES_LIB=/usr/lib/x86_64-linux-gnu

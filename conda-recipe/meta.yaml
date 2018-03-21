@@ -6,22 +6,19 @@ package:
 source:    
     path: ..
 
-build:
-  number: 1
-
 requirements:
   build:
     - {{ compiler('c') }}
     - make
+    - python
+    - epics-base
 
   host:
     - python
-    - xerces-c28
     - epics-base
 
   run:
     - python
-    - xerces-c28
     - epics-base
 
 about:

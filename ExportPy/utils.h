@@ -76,19 +76,21 @@ int EpicsTime_FromPyDateTimeConverter(PyDateTime_DateTime * py_datetime, void * 
     See https://docs.python.org/3.6/c-api/intro.html for more info. 
     Calls return NULL on error.
 */
-#define PyDict_SetItemStringDECREF(dict, str_key, item) \
-    do {PyObject * pObj = item; \
-    if(! pObj){ \
-        Py_DECREF(dict); \
-        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemStringDECREF item is NULL"); \
-        return NULL; \
-    } \
-    if(PyDict_SetItemString(dict, str_key, pObj) == -1){ \
-        Py_DECREF(dict); \
-        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemStringDECREF PyDict_SetItemString is not successfull"); \
-        return NULL; \
-    } \
-    Py_DECREF(pObj);} while (0)
+void PyDict_SetItemStringDECREF(PyObject *, const char * str_key, PyObject * item);
+
+//#define PyDict_SetItemStringDECREF(dict, str_key, item) \
+//    do {PyObject * pObj = item; \
+//    if(! pObj){ \
+//        Py_DECREF(dict); \
+//        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemStringDECREF item is NULL"); \
+//        return NULL; \
+//    } \
+//    if(PyDict_SetItemString(dict, str_key, pObj) == -1){ \
+//        Py_DECREF(dict); \
+//        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemStringDECREF PyDict_SetItemString is not successfull"); \
+//        return NULL; \
+//    } \
+//    Py_DECREF(pObj);} while (0)
 
 /* 
     This macro decreases refcount for item and for key.
@@ -97,26 +99,28 @@ int EpicsTime_FromPyDateTimeConverter(PyDateTime_DateTime * py_datetime, void * 
     See https://docs.python.org/3.6/c-api/intro.html for more info.
     Calls return NULL on error.
 */
-#define PyDict_SetItemDECREF(dict, key, item) \
-    do {PyObject * pObj = item; \
-    if(! pObj){ \
-        Py_DECREF(dict); \
-        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREF item is NULL"); \
-        return NULL; \
-    } \
-    PyObject * pKey = key; \
-    if(! pKey){ \
-        Py_DECREF(dict); \
-        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREF key is NULL"); \
-        return NULL; \
-    } \
-    if(PyDict_SetItem(dict, pKey, pObj) == -1){ \
-        Py_DECREF(dict); \
-        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREF PyDict_SetItem not successfull"); \
-        return NULL; \
-    } \
-    Py_DECREF(pObj); \
-    Py_DECREF(pKey);} while (0)
+void PyDict_SetItemStringDECREF(PyObject *, PyObject * key, PyObject * item);
+
+//#define PyDict_SetItemDECREF(dict, key, item) \
+//    do {PyObject * pObj = item; \
+//    if(! pObj){ \
+//        Py_DECREF(dict); \
+//        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREF item is NULL"); \
+//        return NULL; \
+//    } \
+//    PyObject * pKey = key; \
+//    if(! pKey){ \
+//        Py_DECREF(dict); \
+//        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREF key is NULL"); \
+//        return NULL; \
+//    } \
+//    if(PyDict_SetItem(dict, pKey, pObj) == -1){ \
+//        Py_DECREF(dict); \
+//        PyErr_SetString(PyExc_RuntimeError, "PyDict_SetItemDECREF PyDict_SetItem not successfull"); \
+//        return NULL; \
+//    } \
+//    Py_DECREF(pObj); \
+//    Py_DECREF(pKey);} while (0)
 
 /* 
     This macro decreases refcount for item only, in case key is stil used somewhere else.

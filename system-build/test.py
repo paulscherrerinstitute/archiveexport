@@ -1,6 +1,6 @@
 import archiveexport as ae
 
-# channels = ae.list("/mnt/archiver/indexconfig.xml", pattern="ARIDI.*BPM1")
+#channels = ae.list("/mnt/archiver/indexconfig.xml", pattern="ARIDI.*BPM1")
 
 import datetime
 now = datetime.datetime.now()
@@ -18,14 +18,15 @@ channels = ae.list("/mnt/archiver/index")
 import random
 my_randoms = random.sample(range(len(channels)), 100)
 random_channels = [channels[i] for i in my_randoms]
-data = ae.get_data("/mnt/archiver/index", channels=random_channels, start=start, end=end, get_units=True, get_status=True, get_info=True)
+data = ae.get_data("/mnt/archiver/index", channels=random_channels, start=now, get_units=True, get_status=True, get_info=True)
 print(data)
 
 # channels = ["ARIMA-CS-04LA:PS-ERRORLST", 
 #             "X05LA-ID1-CHU2:I-SRDIFF",
 #             "ALBMA-CV-2:I-NOISE",
 #             "ILUZL-2100-EDSPS:W01_L_D-WA",
-#             "ARIMA-QMG-06:PS-ERRORSTR"]
+#             "ARIMA-QMG-06:PS-ERRORSTR",
+#             "ARIMA-CV-05LD:LOAD-ERR", "ABOMA-QD:ERF-DSBR"]
 # 
 # data = ae.get_data("/mnt/archiver/indexconfig.xml", channels=channels, start=now, get_units=True, get_status=True, get_info=True)
 # print(data)
