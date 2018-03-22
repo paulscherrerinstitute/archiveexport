@@ -20,6 +20,6 @@ requirements:
     - epics-base
 
 about:
-    home: http://www.aps.anl.gov/epics
-    license: Epics Open License
+    home: https://github.com/paulscherrerinstitute/archiveexport
+    license: GNU GENERAL PUBLIC LICENSE Version 3
     summary: EPICS Base Library
