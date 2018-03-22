@@ -1,1 +1,0 @@
-sshfs sustar_t@gfalc:/net/slsmcarch-navf/export/archiver-data-mc/archive_ST /mnt/archiver/ -o "StrictHostKeyChecking=no" -o UserKnownHostsFile=/dev/null;

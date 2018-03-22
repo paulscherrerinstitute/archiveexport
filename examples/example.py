@@ -2,7 +2,7 @@ import archiveexport as ae
 import datetime
 
 # find channels by pattern
-index_file = "/mnt/archiver/index"
+index_file = "/net/slsmcarch-navf/export/archiver-data-mc/archive_ST/index"
 channels = ae.list(index_name=index_file, pattern="ARIDI.*BPM1")
 
 # calculate start and date
