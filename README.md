@@ -8,6 +8,8 @@ It is available as a self contained Conda packaged and can be easily installed v
 conda install -c paulscherrerinstitute archiveexport
 ```
 
+An example Jupyter Notebook can be found in [examples/Example.ipynb](examples/Example.ipynb).
+
 # Usage
 
 Module exposes two functions `archiveexport.list()` to extrat channel names and `archiveexport.get_data()` to extract the data. 
