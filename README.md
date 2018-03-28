@@ -39,7 +39,9 @@ print(data)
 
 # API Reference
 
-## archiveexport.list(index_name, pattern="")
+## `list()`
+
+`archiveexport.list`*(index_name, pattern="")*
 
 Searches the index file for channel names.
 
@@ -49,7 +51,9 @@ Searches the index file for channel names.
 
 **Returns:** A list of channel names.
 
-## archiveexport.get_data(index_name, channels=[], start=..., end=... get_units=False, get_status=False, get_info=False)
+## `get_data()`
+
+`archiveexport.get_data`*(index_name, channels=[], start=..., end=... get_units=False, get_status=False, get_info=False)*
 
 Queries archived data.
 
@@ -77,7 +81,7 @@ Returns following structure:
 }   
 ```
 
-Returns a dictionary where every key is a channel name and value is a list of dictionaries that describe the stored data point. Keys and values available in the "value dictionary" are the following:
+Returns a dictionary where every key is a channel name and value is a list of dictionaries that describe the stored data point. Also one datapoint before `start` and one after `end` will be returned if they exist. Keys and values available in the "value dictionary" are the following:
 
 * `"value"` ... For scalar values, depending on the epics data type the following python type is returned:
 
