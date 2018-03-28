@@ -1,0 +1,70 @@
+On GFA systems all archiver filesystems are usually linked in ```/gfa/archiver-data```
+
+Following archives are available:
+
+* fin250-lt-fs/export/archive_FIN250_LT
+* fin250-mt-fs/export/archive_FIN250_MT
+* fin250-st-fs/export/archive_FIN250_ST
+* fin250-test-fs/export/archive_FIN250_TEST
+* slsmcarch-navf/export/archiver-data-mc/archive_LT
+* slsmcarch-navf/export/archiver-data-mc/archive_MT
+* slsmcarch-navf/export/archiver-data-mc/archive_PM
+* proscan-arch-vf/export/archiver-data-proscan/archive_PRO_LT
+* proscan-arch-vf/export/archiver-data-proscan/archive_PRO_MT
+* proscan-arch-vf/export/archiver-data-proscan/archive_PRO_ST
+* slsofarch-navf/export/archiver-data-of/archive_PSI_LT
+* slsofarch-navf/export/archiver-data-of/archive_PSI_MT
+* slsofarch-navf/export/archiver-data-of/archive_PSI_ST
+* slsmcarch-navf/export/archiver-data-mc/archive_ST
+* trfcb-lt-fs/export/archive_TRFCB_LT
+* trfcb-mt-fs/export/archive_TRFCB_MT
+* trfcb-pm-fs/export/archive_TRFCB_PM
+* gfa-synonas/volume1/archiver/archiver-data-sfoldarch/archive_TRFCB_SFOLDARCH
+* trfcb-st-fs/export/archive_TRFCB_ST
+* slsblarch-navf/export/archiver-data-bl/archive_X02DA_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X02DA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X03DA_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X03DA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X03MA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X04SA_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X04SA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X05DA_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X05DA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X05DB_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X05DB_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X05LA_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X05LA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X06DA_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X06DA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X06SA_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X06SA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X07DA_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X07DA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X07MA_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X07MA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X07MB_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X07MB_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X09LA_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X09LA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X09LB_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X09LB_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X10DA_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X10DA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X10SA_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X10SA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X11MA_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X11MA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_X12SA_LO
+* slsblarch-navf/export/archiver-data-bl/archive_X12SA_SH
+* slsblarch-navf/export/archiver-data-bl/archive_XBPM_LO
+* slsblarch-navf/export/archiver-data-bl/archive_XBPM_SH
+* hipa-arch-vf/export/archiver-data-hipa/archive_ZHE_LT
+* hipa-arch-vf/export/archiver-data-hipa/archive_ZHE_MT
+* hipa-arch-vf/export/archiver-data-hipa/archive_ZHE_ST
+* slsmcarch-navf/export/archiver-data-mc/archive_LT
+* slsmcarch-navf/export/archiver-data-mc/archive_MT
+* slsmcarch-navf/export/archiver-data-mc/archive_PM
+* slsmcarch-navf/export/archiver-data-mc/saveset
+* slsmcarch-navf/export/archiver-data-mc/archive_ST
+
+ 
